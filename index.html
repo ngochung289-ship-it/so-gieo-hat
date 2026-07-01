@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪄 If I Had a Magic Wand — Live HR Wish Wall</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1A1225;
+    --purple: #4A3880;
+    --purple-mid: #6B56B5;
+    --purple-glow: #9B87E8;
+    --purple-pale: #EDE9FC;
+    --gold: #F2C14E;
+    --gold-warm: #F7A832;
+    --gold-pale: #FEF3D0;
+    --cream: #FAF9F6;
+    --smoke: #F3F1F8;
+    --mist: #E8E4F4;
+    --gray: #7A7490;
+    --gray-light: #DDD9EC;
+    --white: #FFFFFF;
+    --green: #2A9D6E;
+    --green-pale: #E4F5EE;
+    --danger: #E05252;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── CONFIG BANNER ── */
+  #configBanner {
+    background: linear-gradient(135deg, #1A1225 0%, #2E2060 100%);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #configBanner.hidden { display: none; }
+
+  .config-icon { font-size: 52px; margin-bottom: 1rem; }
+  .config-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .config-title em { font-style: italic; color: var(--gold); }
+  .config-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+    max-width: 460px;
+  }
+
+  .config-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 480px;
+    text-align: left;
+  }
+  .config-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+  .config-step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .config-step-text { font-size: 13.5px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .config-step-text strong { color: var(--white); font-weight: 600; }
+  .config-step-text a { color: var(--gold); text-decoration: none; }
+  .config-step-text code {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--gold-pale);
+  }
+
+  .config-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.25rem 0; }
+
+  .config-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+  .config-input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: monospace;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: var(--white);
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .config-input:focus { border-color: var(--purple-glow); }
+  .config-input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .config-connect-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .config-connect-btn:hover { background: var(--gold-warm); transform: translateY(-1px); }
+  .config-error { font-size: 12px; color: #FF8A8A; margin-top: 8px; display: none; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; }
+  #app.visible { display: block; }
+
+  /* Header */
+  .app-header {
+    background: linear-gradient(135deg, #1A1225 0%, #2E2060 100%);
+    padding: 1.5rem 1.5rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .app-header::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(155,135,232,0.15);
+  }
+  .header-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .header-wand { font-size: 36px; }
+  .header-text { flex: 1; }
+  .header-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .header-title em { font-style: italic; color: var(--gold); }
+  .header-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .live-dot {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: var(--green);
+    background: var(--green-pale);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .live-dot::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Tabs */
+  .tab-wrap {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px 6px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--purple); }
+  .tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 600; }
+  .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+
+  /* Body */
+  .body-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Stats */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    color: var(--purple);
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl { font-size: 11px; color: var(--gray); font-weight: 500; }
+
+  /* Submit panel */
+  .submit-prompt {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-prompt::after {
+    content: '🪄';
+    position: absolute;
+    right: 1rem; top: 50%;
+    transform: translateY(-50%);
+    font-size: 36px;
+    opacity: 0.3;
+  }
+  .submit-prompt-q {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--white);
+    line-height: 1.5;
+    max-width: 85%;
+  }
+  .submit-prompt-hint { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--white);
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 10px;
+  }
+  textarea:focus { border-color: var(--purple-mid); }
+
+  .tag-label { font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag {
+    font-size: 12px; padding: 5px 13px;
+    border-radius: 999px;
+    border: 1.5px solid var(--gray-light);
+    background: var(--white);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-weight: 500;
+  }
+  .tag:hover { border-color: var(--purple-glow); color: var(--purple); }
+  .tag.sel { background: var(--purple); border-color: var(--purple); color: var(--white); }
+
+  .submit-row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .anon-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--gray); cursor: pointer;
+  }
+  .anon-label input { cursor: pointer; }
+
+  .btn {
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1.5px solid var(--gray-light);
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .btn:hover { border-color: var(--gray); background: var(--smoke); }
+  .btn.magic {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink);
+  }
+  .btn.magic:hover { background: var(--gold-warm); border-color: var(--gold-warm); transform: translateY(-1px); }
+  .btn.ghost {
+    background: transparent;
+    border-color: var(--purple-glow);
+    color: var(--purple);
+  }
+  .btn.ghost:hover { background: var(--purple-pale); }
+
+  .success-toast {
+    display: none;
+    background: var(--green-pale);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 500;
+    margin-top: 10px;
+  }
+  .success-toast.show { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+  /* Wish cards */
+  .sort-row {
+    display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;
+  }
+  .sort-lbl { font-size: 12px; color: var(--gray); font-weight: 500; }
+  .sort-btn {
+    font-size: 12px; padding: 4px 11px;
+    border-radius: 999px;
+    border: 1.5px solid var(--gray-light);
+    background: var(--white);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+  .sort-btn.active { background: var(--purple); border-color: var(--purple); color: var(--white); font-weight: 600; }
+
+  .wish-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .wish-card {
+    background: var(--white);
+    border: 1.5px solid var(--gray-light);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    transition: border-color 0.15s, transform 0.1s;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .wish-card:hover { border-color: var(--purple-glow); transform: translateY(-1px); }
+  .wish-card.top { border: 2px solid var(--gold); background: var(--gold-pale); }
+
+  .wish-text {
+    font-size: 14px; color: var(--ink); line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .wish-meta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .wish-author { font-size: 12px; color: var(--gray); }
+  .wish-tag-pill {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--purple-pale);
+    color: var(--purple);
+  }
+  .wish-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .wave-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; padding: 5px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-light);
+    background: var(--smoke);
+    color: var(--ink);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.12s;
+  }
+  .wave-btn:hover { border-color: var(--purple-glow); background: var(--purple-pale); }
+  .wave-btn.waved { background: var(--purple); border-color: var(--purple); color: var(--white); }
+  .top-badge {
+    margin-left: auto;
+    font-size: 11px; font-weight: 700;
+    background: var(--gold);
+    color: var(--ink);
+    padding: 3px 11px;
+    border-radius: 999px;
+  }
+
+  /* Themes */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .theme-card {
+    background: var(--white);
+    border: 1.5px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: border-color 0.15s;
+  }
+  .theme-card:hover { border-color: var(--purple-glow); }
+  .theme-name { font-size: 13px; font-weight: 600; color: var(--purple); margin-bottom: 3px; }
+  .theme-count { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+  .theme-bar-track { height: 5px; background: var(--mist); border-radius: 3px; overflow: hidden; }
+  .theme-bar-fill { height: 100%; border-radius: 3px; background: var(--purple-mid); transition: width 0.5s ease; }
+
+  /* Winner */
+  .winner-card {
+    background: linear-gradient(135deg, var(--gold-pale) 0%, #FEF8E0 100%);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .winner-icon { font-size: 40px; margin-bottom: 8px; display: block; }
+  .winner-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-warm); margin-bottom: 8px; }
+  .winner-text {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .winner-meta { font-size: 13px; color: var(--gray); }
+
+  .info-box {
+    background: var(--purple-pale);
+    border: 1px solid var(--mist);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--purple);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .info-box strong { font-weight: 600; }
+
+  .divider { border: none; border-top: 1px solid var(--gray-light); margin: 1.5rem 0; }
+  .empty { font-size: 13px; color: var(--gray); font-style: italic; padding: 1.5rem 0; text-align: center; }
+
+  .copy-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .copy-success { font-size: 12px; color: var(--green); font-weight: 500; margin-top: 6px; display: none; }
+  .copy-success.show { display: block; }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    font-size: 13px;
+    color: var(--gray);
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--mist);
+    border-top-color: var(--purple-mid);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Responsive */
+  @media (max-width: 500px) {
+    .body-wrap { padding: 1rem; }
+    .stat-num { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SETUP SCREEN ── -->
+<div id="configBanner">
+  <div class="config-icon">🪄</div>
+  <h1 class="config-title">If I Had a<br><em>Magic Wand</em></h1>
+  <p class="config-sub">Connect your Firebase project to go live. Takes 3 minutes — everyone joins via a shared link, wishes sync in real time.</p>
+
+  <div class="config-card">
+    <div class="config-step">
+      <div class="config-step-num">1</div>
+      <div class="config-step-text">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → <strong>Add project</strong> → name it anything (e.g. <em>hr-magic-wand</em>) → disable Google Analytics → <strong>Create project</strong></div>
+    </div>
+    <div class="config-step">
+      <div class="config-step-num">2</div>
+      <div class="config-step-text">Inside your project → click <strong>Realtime Database</strong> (left sidebar) → <strong>Create database</strong> → choose any region → select <strong>Start in test mode</strong> → Enable</div>
+    </div>
+    <div class="config-step">
+      <div class="config-step-num">3</div>
+      <div class="config-step-text">Click the ⚙️ gear icon → <strong>Project settings</strong> → scroll to <strong>Your apps</strong> → click <strong>&lt;/&gt;</strong> (Web) → register app → copy the <code>databaseURL</code> and <code>apiKey</code> values below</div>
+    </div>
+    <div class="config-divider"></div>
+    <div class="config-label">Firebase API Key</div>
+    <input class="config-input" id="inputApiKey" placeholder="AIzaSy..." />
+    <div class="config-label">Database URL</div>
+    <input class="config-input" id="inputDbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
+    <div class="config-label">Session name (optional — separates multiple sessions)</div>
+    <input class="config-input" id="inputSession" placeholder="june-hr-connect" />
+    <button class="config-connect-btn" onclick="connectFirebase()">Connect & go live →</button>
+    <div class="config-error" id="configError">⚠ Could not connect. Double-check your API key and database URL.</div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <div class="app-header">
+    <div class="header-inner">
+      <div class="header-wand">🪄</div>
+      <div class="header-text">
+        <div class="header-title">If I Had a <em>Magic Wand...</em></div>
+        <div class="header-sub">Share your wish — no constraints, no wrong answers</div>
+      </div>
+      <div class="live-dot" id="liveDot">LIVE</div>
+    </div>
+  </div>
+
+  <div class="tab-wrap">
+    <div class="tab-inner">
+      <div class="tab active" id="tab-submit" onclick="switchTab('submit')"><span class="tab-icon">✏️</span>My wish</div>
+      <div class="tab" id="tab-wall" onclick="switchTab('wall')"><span class="tab-icon">🌟</span>Wish wall</div>
+      <div class="tab" id="tab-themes" onclick="switchTab('themes')"><span class="tab-icon">🗂️</span>Themes</div>
+      <div class="tab" id="tab-winner" onclick="switchTab('winner')"><span class="tab-icon">🏆</span>Most magical</div>
+    </div>
+  </div>
+
+  <div class="body-wrap">
+
+    <!-- Submit -->
+    <div class="panel active" id="panel-submit">
+      <div class="submit-prompt">
+        <div class="submit-prompt-q">"If you had a magic wand and could change, create, or fix one thing about how we work — what would it be?"</div>
+        <div class="submit-prompt-hint">No budget, no politics, no wrong answers</div>
+      </div>
+      <textarea id="wishInput" placeholder="I wish we could..." maxlength="280"></textarea>
+      <div class="tag-label">Tag your theme</div>
+      <div class="tags" id="tagRow"></div>
+      <div class="submit-row">
+        <button class="btn magic" onclick="submitWish()">Wave the wand ✨</button>
+        <label class="anon-label"><input type="checkbox" id="anonCheck"> Post anonymously</label>
+      </div>
+      <div class="success-toast" id="successToast">✓ Your wish is on the wall! Switch to Wish wall to see it live.</div>
+    </div>
+
+    <!-- Wall -->
+    <div class="panel" id="panel-wall">
+      <div class="stat-row">
+        <div class="stat-card"><span class="stat-num" id="stat-w">0</span><span class="stat-lbl">Wishes</span></div>
+        <div class="stat-card"><span class="stat-num" id="stat-v">0</span><span class="stat-lbl">Wand waves</span></div>
+        <div class="stat-card"><span class="stat-num" id="stat-t">0</span><span class="stat-lbl">Themes</span></div>
+      </div>
+      <div class="sort-row">
+        <span class="sort-lbl">Sort:</span>
+        <button class="sort-btn active" id="sort-newest" onclick="setSort('newest')">Newest</button>
+        <button class="sort-btn" id="sort-top" onclick="setSort('top')">Most waved</button>
+      </div>
+      <div class="wish-list" id="wishList"><div class="loading"><div class="spinner"></div>Loading wishes...</div></div>
+    </div>
+
+    <!-- Themes -->
+    <div class="panel" id="panel-themes">
+      <div class="info-box"><strong>What matters most to your team.</strong> The biggest bars = your HR priorities. Name the top theme out loud — "It looks like <em>[theme]</em> is what we keep coming back to."</div>
+      <div class="theme-grid" id="themeGrid"><div class="loading"><div class="spinner"></div>Loading themes...</div></div>
+    </div>
+
+    <!-- Winner -->
+    <div class="panel" id="panel-winner">
+      <div id="winnerArea"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      <hr class="divider">
+      <div class="info-box"><strong>Close the loop:</strong> Screenshot this page, share it in your HR channel, and nominate someone to follow up on the top theme next month.</div>
+      <div class="copy-btn-row">
+        <button class="btn ghost" onclick="copySummary()">📋 Copy session summary</button>
+      </div>
+      <div class="copy-success" id="copySuccess">✓ Copied to clipboard!</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const ALL_TAGS = ['Flexibility','Recognition','Learning','Wellbeing','Belonging','Tools','Leadership','Culture','Other'];
+const TAG_COLORS = {
+  Flexibility:'#185FA5', Recognition:'#854F0B', Learning:'#3B6D11',
+  Wellbeing:'#0F6E56', Belonging:'#8B1A4A', Tools:'#4B5563',
+  Leadership:'#6B21A8', Culture:'#0E7490', Other:'#4A3880'
+};
+
+let db, sessionPath, sortMode = 'newest', wishes = {}, myVotes = {}, selectedTag = 'Flexibility';
+
+// Build tags
+function buildTags() {
+  document.getElementById('tagRow').innerHTML = ALL_TAGS.map(t =>
+    `<span class="tag${t===selectedTag?' sel':''}" onclick="window._selectTag('${t}')">${t}</span>`
+  ).join('');
+}
+window._selectTag = t => { selectedTag = t; buildTags(); };
+buildTags();
+
+// Connect
+window.connectFirebase = async function() {
+  const apiKey = document.getElementById('inputApiKey').value.trim();
+  const dbUrl = document.getElementById('inputDbUrl').value.trim();
+  const session = (document.getElementById('inputSession').value.trim() || 'default').replace(/[^a-zA-Z0-9-_]/g,'');
+  const errEl = document.getElementById('configError');
+  errEl.style.display = 'none';
+
+  if (!apiKey || !dbUrl) { errEl.textContent = '⚠ Please fill in both API key and Database URL.'; errEl.style.display='block'; return; }
+
+  try {
+    const app = initializeApp({ apiKey, databaseURL: dbUrl }, 'mw-app');
+    db = getDatabase(app);
+    sessionPath = `magic-wand/${session}`;
+    // Test connection
+    await get(ref(db, `${sessionPath}/__test`));
+    document.getElementById('configBanner').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    startListening();
+  } catch(e) {
+    errEl.textContent = '⚠ Could not connect. Check your API key and Database URL, and make sure Realtime Database is enabled.';
+    errEl.style.display = 'block';
+  }
+};
+
+function startListening() {
+  onValue(ref(db, `${sessionPath}/wishes`), snap => {
+    wishes = snap.val() || {};
+    renderAll();
+  });
+}
+
+window.submitWish = async function() {
+  const text = document.getElementById('wishInput').value.trim();
+  if (!text) { alert('Write your wish first!'); return; }
+  const anon = document.getElementById('anonCheck').checked;
+  await push(ref(db, `${sessionPath}/wishes`), {
+    text,
+    author: anon ? 'Anonymous' : 'You',
+    tag: selectedTag,
+    waves: 0,
+    ts: Date.now()
+  });
+  document.getElementById('wishInput').value = '';
+  const toast = document.getElementById('successToast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+};
+
+window.waveWish = async function(id) {
+  const w = wishes[id];
+  if (!w) return;
+  if (myVotes[id]) {
+    await update(ref(db, `${sessionPath}/wishes/${id}`), { waves: Math.max(0,(w.waves||0)-1) });
+    delete myVotes[id];
+  } else {
+    await update(ref(db, `${sessionPath}/wishes/${id}`), { waves: (w.waves||0)+1 });
+    myVotes[id] = true;
+  }
+};
+
+window.setSort = function(mode) {
+  sortMode = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-'+mode).classList.add('active');
+  renderWall();
+};
+
+window.switchTab = function(tab) {
+  ['submit','wall','themes','winner'].forEach(t => {
+    document.getElementById('panel-'+t).className = 'panel'+(t===tab?' active':'');
+    document.getElementById('tab-'+t).className = 'tab'+(t===tab?' active':'');
+  });
+};
+
+window.copySummary = function() {
+  const arr = Object.entries(wishes).map(([id,w])=>({id,...w}));
+  const sorted = arr.sort((a,b)=>(b.waves||0)-(a.waves||0));
+  const counts = {};
+  ALL_TAGS.forEach(t=>counts[t]=0);
+  arr.forEach(w=>{if(counts[w.tag]!==undefined)counts[w.tag]++;});
+  const themes = Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const top = sorted[0];
+  let txt = `HR CONNECT — MAGIC WAND SESSION SUMMARY\n\n`;
+  txt += `TOTAL WISHES: ${arr.length} | TOTAL WAVES: ${arr.reduce((s,w)=>s+(w.waves||0),0)}\n\n`;
+  txt += `TOP THEMES:\n${themes.map(([t,c])=>`  • ${t}: ${c} wish${c!==1?'es':''}`).join('\n')}\n\n`;
+  if (top) txt += `MOST MAGICAL WISH (${top.waves||0} waves):\n"${top.text}"\n\n`;
+  txt += `ALL WISHES (by votes):\n${sorted.map((w,i)=>`${i+1}. [${w.waves||0} waves] ${w.text} — ${w.tag}`).join('\n')}`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const el = document.getElementById('copySuccess');
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),3000);
+  });
+};
+
+function renderAll() {
+  renderStats(); renderWall(); renderThemes(); renderWinner();
+}
+
+function renderStats() {
+  const arr = Object.values(wishes);
+  document.getElementById('stat-w').textContent = arr.length;
+  document.getElementById('stat-v').textContent = arr.reduce((s,w)=>s+(w.waves||0),0);
+  document.getElementById('stat-t').textContent = new Set(arr.map(w=>w.tag)).size;
+}
+
+function renderWall() {
+  const list = document.getElementById('wishList');
+  const arr = Object.entries(wishes).map(([id,w])=>({id,...w}));
+  if (!arr.length) { list.innerHTML='<div class="empty">No wishes yet — be the first to wave your wand!</div>'; return; }
+  let sorted = [...arr];
+  if (sortMode==='top') sorted.sort((a,b)=>(b.waves||0)-(a.waves||0));
+  else sorted.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const maxW = Math.max(...arr.map(w=>w.waves||0));
+  list.innerHTML = sorted.map(w => {
+    const isTop = (w.waves||0)===maxW && maxW>0;
+    return `<div class="wish-card${isTop?' top':''}">
+      <p class="wish-text">${escHtml(w.text)}</p>
+      <div class="wish-meta">
+        <span class="wish-author">${escHtml(w.author||'Anonymous')}</span>
+        <span class="wish-tag-pill" style="background:${TAG_COLORS[w.tag]||'#4A3880'}22;color:${TAG_COLORS[w.tag]||'#4A3880'}">${w.tag||'Other'}</span>
+      </div>
+      <div class="wish-actions">
+        <button class="wave-btn${myVotes[w.id]?' waved':''}" onclick="waveWish('${w.id}')">
+          🪄 ${myVotes[w.id]?'Waved!':'Wave'}&nbsp;&nbsp;${w.waves||0}
+        </button>
+        ${isTop?'<span class="top-badge">Most magical ✨</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderThemes() {
+  const arr = Object.values(wishes);
+  const counts = {};
+  ALL_TAGS.forEach(t=>counts[t]=0);
+  arr.forEach(w=>{if(counts[w.tag]!==undefined)counts[w.tag]++;});
+  const sorted = Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const maxC = sorted.length ? sorted[0][1] : 1;
+  const grid = document.getElementById('themeGrid');
+  if (!sorted.length) { grid.innerHTML='<div class="empty">No wishes yet.</div>'; return; }
+  grid.innerHTML = sorted.map(([tag,count])=>
+    `<div class="theme-card">
+      <div class="theme-name" style="color:${TAG_COLORS[tag]}">${tag}</div>
+      <div class="theme-count">${count} wish${count!==1?'es':''}</div>
+      <div class="theme-bar-track"><div class="theme-bar-fill" style="width:${Math.round(count/maxC*100)}%;background:${TAG_COLORS[tag]}"></div></div>
+    </div>`
+  ).join('');
+}
+
+function renderWinner() {
+  const arr = Object.values(wishes);
+  const area = document.getElementById('winnerArea');
+  if (!arr.length) { area.innerHTML='<div class="empty">No wishes submitted yet.</div>'; return; }
+  const top = [...arr].sort((a,b)=>(b.waves||0)-(a.waves||0))[0];
+  area.innerHTML = `<div class="winner-card">
+    <span class="winner-icon">✨</span>
+    <div class="winner-label">Most magical wish</div>
+    <div class="winner-text">${escHtml(top.text)}</div>
+    <div class="winner-meta">${top.author||'Anonymous'} · ${top.tag||'Other'} · ${top.waves||0} wand waves</div>
+  </div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
