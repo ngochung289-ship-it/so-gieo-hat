@@ -1,824 +1,1183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🪄 If I Had a Magic Wand — Live HR Wish Wall</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sổ Gieo Hạt K365</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+:root {
+  /* ─── Nảy mầm: xanh non → xanh lá đậm → đất nâu → hoa trái ─── */
+  --sprout: #8BC34A;
+  --sprout-light: #F1F8E5;
+  --sprout-mid: #C8E0A0;
+  --leaf: #3D7A3D;
+  --leaf-dark: #2A5C2A;
+  --leaf-light: #E8F3E3;
+  --bark: #8B6841;
+  --bark-light: #F5EEE2;
+  --soil: #6B5440;
+  --bloom: #E8835A;
+  --bloom-light: #FCEDE5;
+  --fruit: #D4453C;
+  --fruit-light: #FBE9E7;
+  --gold: #D4A017;
+  --gold-light: #FBF3DC;
+  --sky-mist: #F4F8EF;
 
-  :root {
-    --ink: #1A1225;
-    --purple: #4A3880;
-    --purple-mid: #6B56B5;
-    --purple-glow: #9B87E8;
-    --purple-pale: #EDE9FC;
-    --gold: #F2C14E;
-    --gold-warm: #F7A832;
-    --gold-pale: #FEF3D0;
-    --cream: #FAF9F6;
-    --smoke: #F3F1F8;
-    --mist: #E8E4F4;
-    --gray: #7A7490;
-    --gray-light: #DDD9EC;
-    --white: #FFFFFF;
-    --green: #2A9D6E;
-    --green-pale: #E4F5EE;
-    --danger: #E05252;
-  }
+  --ink: #243018;
+  --ink-soft: #51604A;
+  --ink-muted: #94A088;
+  --surface: #FFFFFF;
+  --border: #DDE6CF;
+  --border-soft: #ECF2E3;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow: 0 2px 10px rgba(61,122,61,.08);
+  --shadow-lift: 0 6px 20px rgba(61,122,61,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:
+    radial-gradient(ellipse 600px 300px at 10% 0%, rgba(139,195,74,.10), transparent),
+    radial-gradient(ellipse 500px 400px at 100% 30%, rgba(212,160,23,.06), transparent),
+    var(--sky-mist);
+  color:var(--ink);font-size:14px;line-height:1.5;min-height:100vh
+}
+.app{max-width:430px;margin:0 auto;padding-bottom:84px}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── NAV ── */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;padding:7px 0 calc(env(safe-area-inset-bottom,0) + 4px);box-shadow:0 -4px 16px rgba(61,122,61,.06)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:9.5px;font-family:inherit;transition:color .15s;font-weight:500}
+.nav-btn.active{color:var(--leaf)}
+.nav-icon{font-size:19px;line-height:1;transition:transform .2s}
+.nav-btn.active .nav-icon{transform:scale(1.12)}
 
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+/* ── SCREENS ── */
+.screen{display:none;padding:0 16px;padding-top:16px}
+.screen.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ── CONFIG BANNER ── */
-  #configBanner {
-    background: linear-gradient(135deg, #1A1225 0%, #2E2060 100%);
-    padding: 2rem 1.5rem;
-    text-align: center;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  #configBanner.hidden { display: none; }
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:18px}
+.page-title{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.4px;display:flex;align-items:center;gap:8px}
+.page-sub{font-size:12px;color:var(--ink-muted);margin-top:3px}
 
-  .config-icon { font-size: 52px; margin-bottom: 1rem; }
-  .config-title {
-    font-family: 'Fraunces', serif;
-    font-size: clamp(1.8rem, 5vw, 2.6rem);
-    color: var(--white);
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-  }
-  .config-title em { font-style: italic; color: var(--gold); }
-  .config-sub {
-    font-size: 14px;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 2rem;
-    line-height: 1.7;
-    max-width: 460px;
-  }
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.card-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.card-title{font-size:13.5px;font-weight:700;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--ink-muted);margin-top:1px}
+.badge{font-size:9.5px;padding:3px 9px;border-radius:10px;font-weight:700;margin-left:auto;letter-spacing:.2px}
 
-  .config-card {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 1.75rem;
-    width: 100%;
-    max-width: 480px;
-    text-align: left;
-  }
-  .config-step {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 1.25rem;
-  }
-  .config-step-num {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--gold);
-    color: var(--ink);
-    font-size: 12px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .config-step-text { font-size: 13.5px; color: rgba(255,255,255,0.8); line-height: 1.6; }
-  .config-step-text strong { color: var(--white); font-weight: 600; }
-  .config-step-text a { color: var(--gold); text-decoration: none; }
-  .config-step-text code {
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-size: 12px;
-    font-family: monospace;
-    color: var(--gold-pale);
-  }
+/* ── FORM FIELDS ── */
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field-label{font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.field-label .hint{font-weight:400;color:var(--ink-muted)}
+textarea,input[type=text],input[type=number],input[type=date],input[type=url],select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--ink);font-family:inherit;resize:none;appearance:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--leaf);box-shadow:0 0 0 3px var(--leaf-light)}
+textarea{line-height:1.5}
+.example-hint{font-size:11px;color:var(--ink-muted);margin-top:4px;font-style:italic;padding-left:2px;line-height:1.5}
 
-  .config-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.25rem 0; }
+/* ── TANG GROUP (3 cách gieo) ── */
+.tang-group{border:1.5px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:4px}
+.tang-item{padding:13px}
+.tang-item+.tang-item{border-top:1px solid var(--border-soft)}
+.tang-label{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px}
+.tang-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px currentColor22}
 
-  .config-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
-  .config-input {
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-family: monospace;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    color: var(--white);
-    margin-bottom: 12px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .config-input:focus { border-color: var(--purple-glow); }
-  .config-input::placeholder { color: rgba(255,255,255,0.25); }
+/* ── TOGGLE ── */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.sl{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:11px;transition:.2s}
+.sl:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input:checked+.sl{background:var(--leaf)}
+input:checked+.sl:before{transform:translateX(18px)}
 
-  .config-connect-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--gold);
-    color: var(--ink);
-    font-size: 15px;
-    font-weight: 700;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s, transform 0.1s;
-    margin-top: 4px;
-  }
-  .config-connect-btn:hover { background: var(--gold-warm); transform: translateY(-1px); }
-  .config-error { font-size: 12px; color: #FF8A8A; margin-top: 8px; display: none; }
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;border:none;border-radius:var(--radius-md);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .1s,box-shadow .15s}
+.btn:active{opacity:.88;transform:scale(.99)}
+.btn-primary{background:linear-gradient(135deg,var(--leaf),var(--leaf-dark));color:white;box-shadow:0 4px 14px rgba(61,122,61,.3)}
+.btn-sprout{background:linear-gradient(135deg,var(--sprout),#7CB342);color:white;box-shadow:0 4px 14px rgba(139,195,74,.35)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#C28E0F);color:white;box-shadow:0 4px 14px rgba(212,160,23,.3)}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--ink-soft);box-shadow:none}
+.btn:disabled{opacity:.6;pointer-events:none;box-shadow:none}
+.btn-row{display:flex;gap:8px;margin-top:4px}
+.btn-row .btn{flex:1}
 
-  /* ── MAIN APP ── */
-  #app { display: none; }
-  #app.visible { display: block; }
+/* ── GOAL CHIPS ── */
+.goal-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.chip{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--ink-soft);transition:.15s}
 
-  /* Header */
-  .app-header {
-    background: linear-gradient(135deg, #1A1225 0%, #2E2060 100%);
-    padding: 1.5rem 1.5rem 1rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .app-header::before {
-    content: '';
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(155,135,232,0.15);
-  }
-  .header-inner {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  .header-wand { font-size: 36px; }
-  .header-text { flex: 1; }
-  .header-title {
-    font-family: 'Fraunces', serif;
-    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
-    color: var(--white);
-    line-height: 1.2;
-  }
-  .header-title em { font-style: italic; color: var(--gold); }
-  .header-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
-  .live-dot {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 600;
-    color: var(--green);
-    background: var(--green-pale);
-    padding: 4px 12px;
-    border-radius: 999px;
-  }
-  .live-dot::before {
-    content: '';
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:27px;font-weight:800;color:var(--ink);letter-spacing:-.5px}
+.stat-lbl{font-size:10.5px;color:var(--ink-muted);margin-top:2px;font-weight:500}
 
-  /* Tabs */
-  .tab-wrap {
-    background: var(--white);
-    border-bottom: 1px solid var(--gray-light);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .tab-inner {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-  }
-  .tab {
-    flex: 1;
-    padding: 12px 6px 10px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--gray);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .tab:hover { color: var(--purple); }
-  .tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 600; }
-  .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+/* ── PROGRESS ── */
+.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:12px;font-weight:700;color:var(--ink)}
+.prog-pct{font-size:12px;font-weight:700;color:var(--ink-muted)}
+.bar-bg{background:var(--border-soft);border-radius:5px;height:7px;overflow:hidden}
+.bar{height:7px;border-radius:5px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.prog-meta{font-size:10px;color:var(--ink-muted);margin-top:4px}
 
-  /* Body */
-  .body-wrap {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1.5rem;
-  }
+/* ── LOG ── */
+.log-item{padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.log-item:last-child{border-bottom:none}
+.log-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.log-date{font-size:11px;color:var(--ink-muted);font-weight:500}
+.log-text{font-size:12px;color:var(--ink);margin-top:3px;line-height:1.5}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.tag{font-size:10px;padding:3px 8px;border-radius:8px;background:var(--border-soft);color:var(--ink-soft);font-weight:500}
 
-  .panel { display: none; }
-  .panel.active { display: block; }
+/* ── KIM CUONG (DIAMOND SEEDS) ── */
+.kim-hero{background:linear-gradient(135deg,#1E3A28,#2A5C2A 50%,#3D7A3D);border-radius:var(--radius-lg);padding:22px 18px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(42,92,42,.25)}
+.kim-hero::before{content:'';position:absolute;top:-30%;right:-15%;width:160px;height:160px;background:radial-gradient(circle,rgba(212,160,23,.35),transparent 70%);border-radius:50%}
+.kim-hero-label{font-size:11px;color:rgba(255,255,255,.75);font-weight:600;letter-spacing:.4px;text-transform:uppercase;position:relative}
+.kim-hero-num{font-size:36px;font-weight:800;color:#fff;margin-top:4px;position:relative;letter-spacing:-1px}
+.kim-hero-sub{font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;position:relative}
+.kim-item{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:start;padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.kim-item:last-child{border-bottom:none}
+.kim-gem{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.kim-land{font-size:12.5px;font-weight:700;color:var(--ink)}
+.kim-detail{font-size:11px;color:var(--ink-muted);margin-top:2px;line-height:1.4}
+.kim-date{font-size:10px;color:var(--ink-muted);margin-top:3px}
+.kim-amt{font-size:12.5px;font-weight:700;color:var(--leaf-dark);text-align:right;white-space:nowrap;min-width:58px}
+.kim-type-tag{font-size:9.5px;padding:2px 7px;border-radius:7px;font-weight:700;display:inline-block;margin-top:3px}
 
-  /* Stats */
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-  .stat-card {
-    background: var(--white);
-    border: 1px solid var(--gray-light);
-    border-radius: 12px;
-    padding: 12px 10px;
-    text-align: center;
-  }
-  .stat-num {
-    font-family: 'Fraunces', serif;
-    font-size: 28px;
-    color: var(--purple);
-    display: block;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .stat-lbl { font-size: 11px; color: var(--gray); font-weight: 500; }
+/* ── SETUP ── */
+.setup-hero{text-align:center;padding:36px 16px 26px;position:relative}
+.setup-seed-anim{font-size:54px;margin-bottom:14px;display:inline-block;animation:grow 2.6s ease-in-out infinite}
+@keyframes grow{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.08) rotate(-3deg)}}
+.setup-title{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.5px}
+.setup-tagline{font-size:12.5px;color:var(--leaf);font-weight:700;margin-top:4px;letter-spacing:.3px}
+.setup-desc{font-size:13px;color:var(--ink-muted);margin-top:10px;line-height:1.65;padding:0 8px}
+.goal-input-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.goal-num{width:26px;height:26px;border-radius:8px;background:var(--leaf-light);color:var(--leaf-dark);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-  /* Submit panel */
-  .submit-prompt {
-    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.25rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .submit-prompt::after {
-    content: '🪄';
-    position: absolute;
-    right: 1rem; top: 50%;
-    transform: translateY(-50%);
-    font-size: 36px;
-    opacity: 0.3;
-  }
-  .submit-prompt-q {
-    font-family: 'Fraunces', serif;
-    font-size: 16px;
-    font-style: italic;
-    color: var(--white);
-    line-height: 1.5;
-    max-width: 85%;
-  }
-  .submit-prompt-hint { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+/* ── SECTION LABEL ── */
+.sec-label{font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px;margin-top:4px;display:flex;align-items:center;gap:6px}
 
-  textarea {
-    width: 100%;
-    padding: 12px 14px;
-    font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--white);
-    border: 1.5px solid var(--gray-light);
-    border-radius: 10px;
-    color: var(--ink);
-    resize: vertical;
-    min-height: 90px;
-    outline: none;
-    transition: border-color 0.15s;
-    margin-bottom: 10px;
-  }
-  textarea:focus { border-color: var(--purple-mid); }
+.divider{height:1px;background:var(--border);margin:16px 0}
 
-  .tag-label { font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .tag {
-    font-size: 12px; padding: 5px 13px;
-    border-radius: 999px;
-    border: 1.5px solid var(--gray-light);
-    background: var(--white);
-    color: var(--gray);
-    cursor: pointer;
-    transition: all 0.12s;
-    font-weight: 500;
-  }
-  .tag:hover { border-color: var(--purple-glow); color: var(--purple); }
-  .tag.sel { background: var(--purple); border-color: var(--purple); color: var(--white); }
+/* ── MONTH CALENDAR ── */
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.month-day{aspect-ratio:1;border-radius:6px;background:var(--border-soft);display:flex;align-items:center;justify-content:center;font-size:9.5px;color:var(--ink-muted);font-weight:500}
+.month-day.has-log{background:linear-gradient(135deg,var(--sprout),var(--leaf));color:white;font-weight:700}
+.month-day.today{outline:2px solid var(--gold);outline-offset:1px}
+.month-day.empty-cell{background:none}
 
-  .submit-row {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  }
-  .anon-label {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 13px; color: var(--gray); cursor: pointer;
-  }
-  .anon-label input { cursor: pointer; }
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:999;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.toast{display:inline-flex;align-items:center;gap:6px;padding:11px 18px;border-radius:22px;font-size:13px;font-weight:600;color:white;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transform:translateY(10px);transition:.25s;margin-bottom:6px}
+.toast.show{opacity:1;transform:translateY(0)}
 
-  .btn {
-    padding: 10px 22px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: 1.5px solid var(--gray-light);
-    background: var(--white);
-    color: var(--ink);
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.12s;
-  }
-  .btn:hover { border-color: var(--gray); background: var(--smoke); }
-  .btn.magic {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: var(--ink);
-  }
-  .btn.magic:hover { background: var(--gold-warm); border-color: var(--gold-warm); transform: translateY(-1px); }
-  .btn.ghost {
-    background: transparent;
-    border-color: var(--purple-glow);
-    color: var(--purple);
-  }
-  .btn.ghost:hover { background: var(--purple-pale); }
+/* ── PROFILE BAR ── */
+.profile-bar{display:flex;align-items:center;gap:11px;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.avatar{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--leaf),var(--sprout));color:white;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(61,122,61,.25)}
+.profile-name{font-size:14px;font-weight:700;color:var(--ink)}
+.profile-date{font-size:11px;color:var(--ink-muted)}
+.sync-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.sync-dot.ok{background:var(--sprout);box-shadow:0 0 0 3px rgba(139,195,74,.25)}
+.sync-dot.off{background:var(--border)}
 
-  .success-toast {
-    display: none;
-    background: var(--green-pale);
-    border: 1px solid var(--green);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    color: var(--green);
-    font-weight: 500;
-    margin-top: 10px;
-  }
-  .success-toast.show { display: block; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+/* ── URL SETUP CARD ── */
+.url-card{background:var(--leaf-light);border:1.5px dashed #A8CB8F;border-radius:var(--radius-md);padding:14px;margin-bottom:14px}
+.url-title{font-size:13px;font-weight:700;color:var(--leaf-dark);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.url-step{font-size:12px;color:var(--ink-soft);margin-bottom:6px;padding-left:4px;line-height:1.5}
+.url-step b{color:var(--leaf-dark)}
 
-  /* Wish cards */
-  .sort-row {
-    display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap;
-  }
-  .sort-lbl { font-size: 12px; color: var(--gray); font-weight: 500; }
-  .sort-btn {
-    font-size: 12px; padding: 4px 11px;
-    border-radius: 999px;
-    border: 1.5px solid var(--gray-light);
-    background: var(--white);
-    color: var(--gray);
-    cursor: pointer;
-    transition: all 0.12s;
-    font-family: inherit;
-  }
-  .sort-btn.active { background: var(--purple); border-color: var(--purple); color: var(--white); font-weight: 600; }
+.empty-state{text-align:center;padding:36px 20px;color:var(--ink-muted);font-size:13px;line-height:1.6}
+.empty-icon{font-size:34px;margin-bottom:8px}
 
-  .wish-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .wish-card {
-    background: var(--white);
-    border: 1.5px solid var(--gray-light);
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
-    transition: border-color 0.15s, transform 0.1s;
-    animation: slideIn 0.3s ease;
-  }
-  @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
-  .wish-card:hover { border-color: var(--purple-glow); transform: translateY(-1px); }
-  .wish-card.top { border: 2px solid var(--gold); background: var(--gold-pale); }
-
-  .wish-text {
-    font-size: 14px; color: var(--ink); line-height: 1.65;
-    margin-bottom: 8px;
-  }
-  .wish-meta {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  .wish-author { font-size: 12px; color: var(--gray); }
-  .wish-tag-pill {
-    font-size: 11px; font-weight: 600;
-    padding: 2px 9px;
-    border-radius: 999px;
-    background: var(--purple-pale);
-    color: var(--purple);
-  }
-  .wish-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .wave-btn {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 13px; padding: 5px 14px;
-    border-radius: 8px;
-    border: 1.5px solid var(--gray-light);
-    background: var(--smoke);
-    color: var(--ink);
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 500;
-    transition: all 0.12s;
-  }
-  .wave-btn:hover { border-color: var(--purple-glow); background: var(--purple-pale); }
-  .wave-btn.waved { background: var(--purple); border-color: var(--purple); color: var(--white); }
-  .top-badge {
-    margin-left: auto;
-    font-size: 11px; font-weight: 700;
-    background: var(--gold);
-    color: var(--ink);
-    padding: 3px 11px;
-    border-radius: 999px;
-  }
-
-  /* Themes */
-  .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-  .theme-card {
-    background: var(--white);
-    border: 1.5px solid var(--gray-light);
-    border-radius: 12px;
-    padding: 1rem;
-    transition: border-color 0.15s;
-  }
-  .theme-card:hover { border-color: var(--purple-glow); }
-  .theme-name { font-size: 13px; font-weight: 600; color: var(--purple); margin-bottom: 3px; }
-  .theme-count { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
-  .theme-bar-track { height: 5px; background: var(--mist); border-radius: 3px; overflow: hidden; }
-  .theme-bar-fill { height: 100%; border-radius: 3px; background: var(--purple-mid); transition: width 0.5s ease; }
-
-  /* Winner */
-  .winner-card {
-    background: linear-gradient(135deg, var(--gold-pale) 0%, #FEF8E0 100%);
-    border: 2px solid var(--gold);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-  .winner-icon { font-size: 40px; margin-bottom: 8px; display: block; }
-  .winner-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-warm); margin-bottom: 8px; }
-  .winner-text {
-    font-family: 'Fraunces', serif;
-    font-size: 18px;
-    font-style: italic;
-    color: var(--ink);
-    line-height: 1.5;
-    margin-bottom: 10px;
-  }
-  .winner-meta { font-size: 13px; color: var(--gray); }
-
-  .info-box {
-    background: var(--purple-pale);
-    border: 1px solid var(--mist);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--purple);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-  .info-box strong { font-weight: 600; }
-
-  .divider { border: none; border-top: 1px solid var(--gray-light); margin: 1.5rem 0; }
-  .empty { font-size: 13px; color: var(--gray); font-style: italic; padding: 1.5rem 0; text-align: center; }
-
-  .copy-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .copy-success { font-size: 12px; color: var(--green); font-weight: 500; margin-top: 6px; display: none; }
-  .copy-success.show { display: block; }
-
-  /* Loading */
-  .loading {
-    text-align: center;
-    padding: 2rem;
-    font-size: 13px;
-    color: var(--gray);
-  }
-  .spinner {
-    width: 28px; height: 28px;
-    border: 3px solid var(--mist);
-    border-top-color: var(--purple-mid);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 10px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    .body-wrap { padding: 1rem; }
-    .stat-num { font-size: 22px; }
-  }
+/* ── LEAF DECOR (subtle bg accents) ── */
+.leaf-corner{position:absolute;font-size:46px;opacity:.06;pointer-events:none;line-height:1}
 </style>
 </head>
 <body>
 
-<!-- ── SETUP SCREEN ── -->
-<div id="configBanner">
-  <div class="config-icon">🪄</div>
-  <h1 class="config-title">If I Had a<br><em>Magic Wand</em></h1>
-  <p class="config-sub">Connect your Firebase project to go live. Takes 3 minutes — everyone joins via a shared link, wishes sync in real time.</p>
+<div class="app" id="app">
 
-  <div class="config-card">
-    <div class="config-step">
-      <div class="config-step-num">1</div>
-      <div class="config-step-text">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → <strong>Add project</strong> → name it anything (e.g. <em>hr-magic-wand</em>) → disable Google Analytics → <strong>Create project</strong></div>
+<!-- PROFILE BAR -->
+<div class="profile-bar" id="profile-bar" style="display:none">
+  <div class="avatar" id="profile-avatar">🌱</div>
+  <div>
+    <div class="profile-name" id="profile-name-display">—</div>
+    <div class="profile-date" id="profile-date-display">—</div>
+  </div>
+  <div class="sync-dot off" id="sync-dot" title="Trạng thái đồng bộ"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: SETUP -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-setup" class="screen active">
+  <div class="setup-hero">
+    <div class="setup-seed-anim">🌱</div>
+    <div class="setup-title">Sổ Gieo Hạt K365</div>
+    <div class="setup-tagline">4 Bước Gieo Hạt — Đâm chồi nảy lộc mỗi ngày</div>
+    <div class="setup-desc">Ghi lại hành trình gieo hạt lành mỗi ngày theo triết lý DCI — suy nghĩ, lời nói, hành động.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--leaf-light)">👤</div>
+      <div><div class="card-title">Thông tin của bạn</div></div>
     </div>
-    <div class="config-step">
-      <div class="config-step-num">2</div>
-      <div class="config-step-text">Inside your project → click <strong>Realtime Database</strong> (left sidebar) → <strong>Create database</strong> → choose any region → select <strong>Start in test mode</strong> → Enable</div>
+    <div class="field">
+      <div class="field-label">Tên của bạn</div>
+      <input type="text" id="setup-name" placeholder="Nhập tên của bạn">
     </div>
-    <div class="config-step">
-      <div class="config-step-num">3</div>
-      <div class="config-step-text">Click the ⚙️ gear icon → <strong>Project settings</strong> → scroll to <strong>Your apps</strong> → click <strong>&lt;/&gt;</strong> (Web) → register app → copy the <code>databaseURL</code> and <code>apiKey</code> values below</div>
+    <div class="field">
+      <div class="field-label">💎 Big Why — Tại sao bạn gieo hạt?</div>
+      <textarea id="setup-why" rows="3" placeholder="Lý do sâu xa khiến bạn muốn thực hành gieo hạt mỗi ngày..."></textarea>
     </div>
-    <div class="config-divider"></div>
-    <div class="config-label">Firebase API Key</div>
-    <input class="config-input" id="inputApiKey" placeholder="AIzaSy..." />
-    <div class="config-label">Database URL</div>
-    <input class="config-input" id="inputDbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
-    <div class="config-label">Session name (optional — separates multiple sessions)</div>
-    <input class="config-input" id="inputSession" placeholder="june-hr-connect" />
-    <button class="config-connect-btn" onclick="connectFirebase()">Connect & go live →</button>
-    <div class="config-error" id="configError">⚠ Could not connect. Double-check your API key and database URL.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--bloom-light)">🎯</div>
+      <div><div class="card-title">Mục tiêu của bạn</div><div class="card-sub">Viết ngắn gọn theo dạng SMART — thêm bao nhiêu tuỳ ý</div></div>
+    </div>
+    <div class="field">
+      <div id="setup-goals-list"></div>
+      <button type="button" class="btn btn-outline" onclick="addSetupGoalField()" style="margin-top:4px;font-size:12px;padding:9px">+ Thêm mục tiêu</button>
+    </div>
+  </div>
+
+  <div class="url-card">
+    <div class="url-title">⚙️ Kết nối Google Sheets <span style="font-size:10px;font-weight:400;color:var(--leaf-dark)">(tuỳ chọn)</span></div>
+    <div class="url-step"><b>B1.</b> Mở Google Sheets mới → Extensions → Apps Script</div>
+    <div class="url-step"><b>B2.</b> Paste nội dung file <b>So4Buoc_AppScript.js</b> vào</div>
+    <div class="url-step"><b>B3.</b> Deploy → Web app → Anyone → Copy URL</div>
+    <div class="field" style="margin-top:10px;margin-bottom:0">
+      <input type="url" id="setup-url" placeholder="https://script.google.com/macros/s/...">
+    </div>
+  </div>
+
+  <button class="btn btn-sprout" onclick="saveSetup()">
+    🌱 Bắt đầu gieo hạt
+  </button>
+  <div style="height:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: B1-B2 (Lên kế hoạch) -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-plan" class="screen">
+  <div class="page-header">
+    <div class="page-title">📝 Lên kế hoạch</div>
+    <div class="page-sub">Lý tưởng thực hiện tối hôm trước</div>
+  </div>
+
+  <!-- B1 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--leaf-light)">🎯</div>
+      <div><div class="card-title">Bước 1 — Mục tiêu hướng tới</div></div>
+      <span class="badge" style="background:var(--leaf-light);color:var(--leaf-dark)">B1</span>
+    </div>
+    <div class="goal-chips" id="goal-chips"></div>
+    <div id="goal-detail-text" style="font-size:12px;color:var(--ink-muted);font-style:italic;padding:4px 2px;display:none"></div>
+  </div>
+
+  <!-- B2a -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--bark-light)">🌱</div>
+      <div><div class="card-title">Bước 2a — Mảnh đất màu mỡ hôm nay</div><div class="card-sub">Mình muốn gieo hạt cho ai hôm nay?</div></div>
+      <span class="badge" style="background:var(--bark-light);color:var(--bark)">B2a</span>
+    </div>
+    <div class="field">
+      <div class="field-label">Người có cùng mong muốn <span class="hint">(VD: buddy)</span></div>
+      <input type="text" id="land-buddy" placeholder="VD: Buddy của tôi, người bạn cùng thực hành DCI...">
+    </div>
+    <div class="field">
+      <div class="field-label">Người có ơn với mình</div>
+      <input type="text" id="land-on" placeholder="VD: Bố mẹ, người thân, người đã giúp đỡ mình...">
+    </div>
+    <div class="field">
+      <div class="field-label">Người/tổ chức giúp được nhiều người</div>
+      <input type="text" id="land-nhieu" placeholder="VD: Một quỹ, một tổ chức từ thiện, một dự án cộng đồng...">
+    </div>
+    <div class="field">
+      <div class="field-label">Trường hợp khẩn cấp</div>
+      <input type="text" id="land-khan" placeholder="VD: Ai đó đang cần giúp đỡ ngay hôm nay...">
+    </div>
+  </div>
+
+  <!-- B2b -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--sprout-light)">🤲</div>
+      <div><div class="card-title">Bước 2b — Lên kế hoạch giúp đỡ họ</div><div class="card-sub">Áp dụng theo các mảnh đất đã chọn ở 2a</div></div>
+      <span class="badge" style="background:var(--sprout-light);color:var(--leaf-dark)">B2b</span>
+    </div>
+
+    <div class="tang-group">
+      <div class="tang-item">
+        <div class="tang-label">
+          <div class="tang-dot" style="background:var(--bloom)"></div>
+          * Gieo trực tiếp
+        </div>
+        <textarea id="t-tructiep" rows="3" placeholder="VD: Buddy: gieo hạt 50k/ngày — Quỹ báo hiếu: 100k/tuần — Quỹ khẩn cấp: 200k một lần..."></textarea>
+        <div class="example-hint">↳ Liệt kê theo từng mảnh đất ở 2a: ai/quỹ nào, bao nhiêu, tần suất</div>
+      </div>
+      <div class="tang-item">
+        <div class="tang-label">
+          <div class="tang-dot" style="background:var(--sprout)"></div>
+          ** Gieo gián tiếp
+        </div>
+        <textarea id="t-giantiep" rows="3" placeholder="VD: Buddy: nhắn tin động viên mỗi sáng — Mảnh đất màu mỡ: dành 15 phút lắng nghe, chia sẻ lời khen chân thành..."></textarea>
+        <div class="example-hint">↳ Những việc hỗ trợ không cần tiền: thời gian, sự quan tâm, lời động viên</div>
+      </div>
+      <div class="tang-item">
+        <div class="tang-label">
+          <div class="tang-dot" style="background:var(--gold)"></div>
+          *** Dạy 4 Bước gieo hạt
+        </div>
+        <textarea id="t-day4buoc" rows="3" placeholder="VD: Buddy: gặp 1 lần/tuần vào tối thứ 5 tại quán cafe quen — Mảnh đất màu mỡ: chia sẻ câu chuyện Cây bút cho đồng nghiệp..."></textarea>
+        <div class="example-hint">↳ Khi nào, ở đâu, dạy ai về 4 Bước gieo hạt</div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 10px"></div>
+
+    <div style="background:var(--leaf-light);border-radius:var(--radius-sm);padding:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--leaf-dark);margin-bottom:8px">💡 Nâng cao — Gieo đủ 3 tầng: Suy nghĩ · Lời nói · Hành động</div>
+      <div style="font-size:11.5px;color:var(--ink-soft);line-height:1.7">
+        Với mỗi cách gieo ở trên, hãy thử làm trọn vẹn cả 3 tầng để hạt giống nảy mầm mạnh hơn:<br>
+        🧠 <b>Suy nghĩ</b> — nghĩ về mong muốn, mong muốn giúp đỡ ai đó, ngưỡng mộ ai, cầu chúc cho ai đó thành công...<br>
+        🗣️ <b>Lời nói</b> — thể hiện mong muốn giúp đỡ, nói lời biết ơn, khen ngợi sự thành công của ai, nói lời gắn kết mọi người...<br>
+        🤲 <b>Hành động</b> — giúp đỡ ai đó cụ thể, gieo quỹ, hướng dẫn ai đó thực hành 4 Bước...<br>
+        <span style="color:var(--ink-muted);font-style:italic">Phần này cần sự sáng tạo và kế hoạch riêng của mỗi người — không có khuôn mẫu chung.</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="btn-plan" onclick="savePlan()">
+    💾 Lưu kế hoạch
+  </button>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: B3-B4 (Thực hiện) -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-do" class="screen">
+  <div class="page-header">
+    <div class="page-title">☀️ Thực hiện & Thiền</div>
+    <div class="page-sub">Ghi lại vào buổi sáng hôm sau</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--sprout-light)">✅</div>
+      <div><div class="card-title">Bước 3 — Hành động thực tế</div></div>
+      <span class="badge" style="background:var(--sprout-light);color:var(--leaf-dark)">B3</span>
+    </div>
+    <div class="field">
+      <div class="field-label">Những việc tôi đã làm được <span class="hint">(thêm số tiền nếu có)</span></div>
+      <textarea id="b3-done" rows="3" placeholder="VD: Đã gọi điện hỏi thăm bố mẹ, đã chuyển 3tr quỹ báo hiếu, kể pen cho em Tris..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--bark-light)">☕</div>
+      <div><div class="card-title">Bước 4 — Thiền cafe</div></div>
+      <span class="badge" style="background:var(--bark-light);color:var(--bark)">B4</span>
+    </div>
+    <div class="field">
+      <div class="field-label">4a — Việc tốt tôi làm được hôm qua</div>
+      <textarea id="b4a" rows="2" placeholder="Tôi biết ơn vì hôm qua tôi đã..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">4b — Ngưỡng mộ buddy / Biết ơn quá khứ</div>
+      <textarea id="b4b" rows="2" placeholder="Tôi ngưỡng mộ... vì... / Tôi biết ơn vì ngày xưa..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">4c — Tặng 3 hạt đẹp nhất cho buddy</div>
+      <textarea id="b4c" rows="2" placeholder="Hạt 1: ... Hạt 2: ... Hạt 3: ..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">4d — Biết ơn vì đang dùng 4 Bước</div>
+      <textarea id="b4d" rows="1" placeholder="Tôi biết ơn vì..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--fruit-light)">⚡</div>
+      <div><div class="card-title">Bốn Sức Mạnh</div><div class="card-sub">Dùng khi cần điều chỉnh hạt giống</div></div>
+    </div>
+    <div class="field">
+      <div class="field-label">B1 — Nhớ câu chuyện Cây bút</div>
+      <textarea id="bs1" rows="1" placeholder="Việc đó đến từ hạt giống của tôi: tôi đã từng..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">B2 — Ân hận thông minh</div>
+      <textarea id="bs2" rows="1" placeholder="Tôi ước gì lúc đó mình đủ trí tuệ để không..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">B3 — Cam kết dừng</div>
+      <textarea id="bs3" rows="1" placeholder="Tôi cam kết ngừng... trong... giờ tới..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">B4 — Cân bằng hạt giống</div>
+      <textarea id="bs4" rows="1" placeholder="Hành động bù đắp: ..."></textarea>
+    </div>
+  </div>
+
+  <button class="btn btn-sprout" id="btn-do" onclick="saveDo()">
+    💾 Lưu & Đồng bộ Sheets
+  </button>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: SỔ KIM CƯƠNG -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-kim" class="screen">
+  <div class="page-header">
+    <div class="page-title">💎 Sổ Kim Cương</div>
+    <div class="page-sub">Lưu lại những hạt giống khủng bạn đã gieo</div>
+  </div>
+
+  <div class="kim-hero">
+    <div class="kim-hero-label">✨ Tổng hạt kim cương đã gieo</div>
+    <div class="kim-hero-num" id="kim-total-num">0</div>
+    <div class="kim-hero-sub" id="kim-total-amt">0đ đã gieo trong năm 2026</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--gold-light)">💎</div>
+      <div><div class="card-title">Thêm hạt giống khủng</div><div class="card-sub">Những đóng góp đặc biệt, đáng nhớ</div></div>
+    </div>
+    <div class="field">
+      <div class="field-label">Loại hạt giống</div>
+      <select id="k-type">
+        <option>Hào phóng</option>
+        <option>Trí tuệ</option>
+        <option>Sức khoẻ</option>
+        <option>Kết nối</option>
+        <option>Khẩn cấp</option>
+        <option>Khác</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="field-label">Ngày</div>
+      <input type="date" id="k-date">
+    </div>
+    <div class="field">
+      <div class="field-label">Mảnh đất màu mỡ <span class="hint">(ai / tổ chức nhận)</span></div>
+      <input type="text" id="k-land" placeholder="VD: Một quỹ, một người, một dự án...">
+    </div>
+    <div class="field">
+      <div class="field-label">Số tiền <span class="hint">(VND, để trống nếu không phải tiền)</span></div>
+      <input type="number" id="k-amt" placeholder="VD: 3000000">
+    </div>
+    <div class="field">
+      <div class="field-label">Chi tiết / ý nghĩa hạt gieo</div>
+      <textarea id="k-detail" rows="2" placeholder="VD: Tặng quà cho người thân, đóng góp cho một dự án ý nghĩa..."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">Mục tiêu liên quan</div>
+      <select id="k-goal"></select>
+    </div>
+    <button class="btn btn-gold" id="btn-kim" onclick="saveKim()" style="margin-top:4px">💎 Thêm vào Sổ Kim Cương</button>
+  </div>
+
+  <div class="sec-label">📜 Lịch sử hạt giống khủng</div>
+  <div class="card">
+    <div id="kim-list"><div class="empty-state"><div class="empty-icon">💎</div>Chưa có hạt giống khủng nào.<br>Hãy ghi lại khoảnh khắc gieo hạt đáng nhớ!</div></div>
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
-<div id="app">
-  <div class="app-header">
-    <div class="header-inner">
-      <div class="header-wand">🪄</div>
-      <div class="header-text">
-        <div class="header-title">If I Had a <em>Magic Wand...</em></div>
-        <div class="header-sub">Share your wish — no constraints, no wrong answers</div>
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: DASHBOARD -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-dash" class="screen">
+  <div class="page-header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="page-title">📊 Tiến độ</div>
+        <div class="page-sub" id="dash-month-label">—</div>
       </div>
-      <div class="live-dot" id="liveDot">LIVE</div>
+      <button onclick="loadFromSheets()" style="font-size:11px;padding:7px 13px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600">↻ Tải Sheets</button>
     </div>
   </div>
 
-  <div class="tab-wrap">
-    <div class="tab-inner">
-      <div class="tab active" id="tab-submit" onclick="switchTab('submit')"><span class="tab-icon">✏️</span>My wish</div>
-      <div class="tab" id="tab-wall" onclick="switchTab('wall')"><span class="tab-icon">🌟</span>Wish wall</div>
-      <div class="tab" id="tab-themes" onclick="switchTab('themes')"><span class="tab-icon">🗂️</span>Themes</div>
-      <div class="tab" id="tab-winner" onclick="switchTab('winner')"><span class="tab-icon">🏆</span>Most magical</div>
-    </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num" id="d-streak">0</div><div class="stat-lbl">Ngày liên tục 🔥</div></div>
+    <div class="stat"><div class="stat-num" id="d-total">0</div><div class="stat-lbl">Tổng check-in</div></div>
+    <div class="stat"><div class="stat-num" id="d-month">0</div><div class="stat-lbl">Tháng này</div></div>
+    <div class="stat"><div class="stat-num" id="d-year">0</div><div class="stat-lbl">Năm 2026</div></div>
   </div>
 
-  <div class="body-wrap">
-
-    <!-- Submit -->
-    <div class="panel active" id="panel-submit">
-      <div class="submit-prompt">
-        <div class="submit-prompt-q">"If you had a magic wand and could change, create, or fix one thing about how we work — what would it be?"</div>
-        <div class="submit-prompt-hint">No budget, no politics, no wrong answers</div>
-      </div>
-      <textarea id="wishInput" placeholder="I wish we could..." maxlength="280"></textarea>
-      <div class="tag-label">Tag your theme</div>
-      <div class="tags" id="tagRow"></div>
-      <div class="submit-row">
-        <button class="btn magic" onclick="submitWish()">Wave the wand ✨</button>
-        <label class="anon-label"><input type="checkbox" id="anonCheck"> Post anonymously</label>
-      </div>
-      <div class="success-toast" id="successToast">✓ Your wish is on the wall! Switch to Wish wall to see it live.</div>
+  <div class="sec-label">🗓️ Lịch tháng này</div>
+  <div class="card" style="padding:13px">
+    <div style="display:flex;justify-content:space-around;margin-bottom:7px">
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T2</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T3</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T4</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T5</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T6</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">T7</span>
+      <span style="font-size:10px;color:var(--ink-muted);font-weight:600">CN</span>
     </div>
+    <div class="month-grid" id="month-calendar"></div>
+  </div>
 
-    <!-- Wall -->
-    <div class="panel" id="panel-wall">
-      <div class="stat-row">
-        <div class="stat-card"><span class="stat-num" id="stat-w">0</span><span class="stat-lbl">Wishes</span></div>
-        <div class="stat-card"><span class="stat-num" id="stat-v">0</span><span class="stat-lbl">Wand waves</span></div>
-        <div class="stat-card"><span class="stat-num" id="stat-t">0</span><span class="stat-lbl">Themes</span></div>
-      </div>
-      <div class="sort-row">
-        <span class="sort-lbl">Sort:</span>
-        <button class="sort-btn active" id="sort-newest" onclick="setSort('newest')">Newest</button>
-        <button class="sort-btn" id="sort-top" onclick="setSort('top')">Most waved</button>
-      </div>
-      <div class="wish-list" id="wishList"><div class="loading"><div class="spinner"></div>Loading wishes...</div></div>
-    </div>
+  <div class="sec-label">🌳 Tiến độ từng mục tiêu</div>
+  <div id="progress-list"></div>
 
-    <!-- Themes -->
-    <div class="panel" id="panel-themes">
-      <div class="info-box"><strong>What matters most to your team.</strong> The biggest bars = your HR priorities. Name the top theme out loud — "It looks like <em>[theme]</em> is what we keep coming back to."</div>
-      <div class="theme-grid" id="themeGrid"><div class="loading"><div class="spinner"></div>Loading themes...</div></div>
-    </div>
-
-    <!-- Winner -->
-    <div class="panel" id="panel-winner">
-      <div id="winnerArea"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-      <hr class="divider">
-      <div class="info-box"><strong>Close the loop:</strong> Screenshot this page, share it in your HR channel, and nominate someone to follow up on the top theme next month.</div>
-      <div class="copy-btn-row">
-        <button class="btn ghost" onclick="copySummary()">📋 Copy session summary</button>
-      </div>
-      <div class="copy-success" id="copySuccess">✓ Copied to clipboard!</div>
-    </div>
-
+  <div class="divider"></div>
+  <div class="sec-label">📖 Nhật ký gần nhất</div>
+  <div class="card">
+    <div id="log-list"><div class="empty-state"><div class="empty-icon">🌱</div>Chưa có check-in nào.<br>Bắt đầu gieo hạt hôm nay nhé!</div></div>
   </div>
 </div>
 
-<!-- Firebase SDKs -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<!-- ══════════════════════════════════ -->
+<!-- SCREEN: HỒ SƠ CỦA TÔI -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-me" class="screen">
+  <div class="page-header">
+    <div class="page-title">👤 Hồ sơ của tôi</div>
+    <div class="page-sub">Chỉnh sửa thông tin của bạn bất cứ lúc nào</div>
+  </div>
 
-const ALL_TAGS = ['Flexibility','Recognition','Learning','Wellbeing','Belonging','Tools','Leadership','Culture','Other'];
-const TAG_COLORS = {
-  Flexibility:'#185FA5', Recognition:'#854F0B', Learning:'#3B6D11',
-  Wellbeing:'#0F6E56', Belonging:'#8B1A4A', Tools:'#4B5563',
-  Leadership:'#6B21A8', Culture:'#0E7490', Other:'#4A3880'
-};
+  <div class="card">
+    <div class="card-head">
+      <div class="avatar" id="me-avatar" style="width:46px;height:46px;font-size:20px">🌱</div>
+      <div>
+        <div class="card-title" id="me-streak-name">—</div>
+        <div class="card-sub" id="me-streak">0 ngày liên tục 🔥</div>
+      </div>
+    </div>
+    <div class="divider" style="margin:12px 0"></div>
+    <div class="field">
+      <div class="field-label">Tên của bạn</div>
+      <input type="text" id="me-name" placeholder="Nhập tên của bạn">
+    </div>
+    <div class="field">
+      <div class="field-label">💎 Big Why — Tại sao bạn gieo hạt?</div>
+      <textarea id="me-why" rows="3" placeholder="Lý do sâu xa khiến bạn muốn thực hành gieo hạt mỗi ngày..."></textarea>
+    </div>
+  </div>
 
-let db, sessionPath, sortMode = 'newest', wishes = {}, myVotes = {}, selectedTag = 'Flexibility';
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--bloom-light)">🎯</div>
+      <div><div class="card-title">Mục tiêu của bạn</div><div class="card-sub">Thêm bao nhiêu mục tiêu tuỳ ý</div></div>
+    </div>
+    <div id="me-goals-list"></div>
+    <button class="btn btn-outline" onclick="addGoalField()" style="margin-top:8px;font-size:12px;padding:9px">+ Thêm mục tiêu</button>
+  </div>
 
-// Build tags
-function buildTags() {
-  document.getElementById('tagRow').innerHTML = ALL_TAGS.map(t =>
-    `<span class="tag${t===selectedTag?' sel':''}" onclick="window._selectTag('${t}')">${t}</span>`
-  ).join('');
+  <button class="btn btn-primary" onclick="saveProfile()">
+    💾 Lưu thay đổi
+  </button>
+  <div style="height:12px"></div>
+
+  <div class="url-card">
+    <div class="url-title">⚙️ Google Sheets URL</div>
+    <div class="url-step"><b>B1.</b> Mở Google Sheets mới → Extensions → Apps Script</div>
+    <div class="url-step"><b>B2.</b> Paste nội dung file <b>So4Buoc_AppScript.js</b> vào</div>
+    <div class="url-step"><b>B3.</b> Deploy → New deployment → Web app → Anyone → Copy URL</div>
+    <div class="field" style="margin-top:10px;margin-bottom:8px">
+      <input type="url" id="me-url" placeholder="https://script.google.com/macros/s/...">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="testConnection()" style="font-size:12px;padding:9px">Kiểm tra</button>
+      <button class="btn btn-primary" onclick="updateUrl()" style="font-size:12px;padding:9px">Cập nhật URL</button>
+    </div>
+    <div id="url-test-result" style="font-size:11px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none"></div>
+  </div>
+
+  <button class="btn btn-outline" onclick="resetApp()" style="color:var(--fruit);border-color:var(--fruit)">
+    🔄 Đặt lại từ đầu
+  </button>
+  <div style="height:16px"></div>
+</div>
+
+</div><!-- end .app -->
+
+<!-- NAV BAR -->
+<div class="nav" id="main-nav" style="display:none">
+  <button class="nav-btn active" id="nav-plan" onclick="goNav('plan')">
+    <span class="nav-icon">📝</span>B1-B2
+  </button>
+  <button class="nav-btn" id="nav-do" onclick="goNav('do')">
+    <span class="nav-icon">☀️</span>B3-B4
+  </button>
+  <button class="nav-btn" id="nav-kim" onclick="goNav('kim')">
+    <span class="nav-icon">💎</span>Kim cương
+  </button>
+  <button class="nav-btn" id="nav-dash" onclick="goNav('dash')">
+    <span class="nav-icon">📊</span>Tiến độ
+  </button>
+  <button class="nav-btn" id="nav-me" onclick="goNav('me')">
+    <span class="nav-icon">👤</span>Hồ sơ
+  </button>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── STORAGE KEYS ──
+const K = { profile: 'k365_profile', log: 'k365_log_v1', kim: 'k365_kim_v1', url: 'k365_url' };
+
+// ── HELPERS ──
+function g(id){ return document.getElementById(id); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function fmtD(s){
+  if(!s) return '';
+  const d = new Date(s+'T00:00:00');
+  return d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit'});
 }
-window._selectTag = t => { selectedTag = t; buildTags(); };
-buildTags();
+function fmtMoney(n){ return n ? parseInt(n).toLocaleString('vi-VN')+'đ' : ''; }
+function getLog(){ try{ return JSON.parse(localStorage.getItem(K.log))||[]; }catch{ return []; } }
+function saveLog(d){ localStorage.setItem(K.log, JSON.stringify(d)); }
+function getKim(){ try{ return JSON.parse(localStorage.getItem(K.kim))||[]; }catch{ return []; } }
+function saveKimData(d){ localStorage.setItem(K.kim, JSON.stringify(d)); }
+function getProfile(){ try{ return JSON.parse(localStorage.getItem(K.profile))||null; }catch{ return null; } }
+function getUrl(){ return localStorage.getItem(K.url)||''; }
 
-// Connect
-window.connectFirebase = async function() {
-  const apiKey = document.getElementById('inputApiKey').value.trim();
-  const dbUrl = document.getElementById('inputDbUrl').value.trim();
-  const session = (document.getElementById('inputSession').value.trim() || 'default').replace(/[^a-zA-Z0-9-_]/g,'');
-  const errEl = document.getElementById('configError');
-  errEl.style.display = 'none';
+const PALETTE = [
+  {bg:'#FCEDE5', border:'#E8835A', text:'#C2562A'},
+  {bg:'#F1F8E5', border:'#7CB342', text:'#3D7A3D'},
+  {bg:'#E6F1FB', border:'#185FA5', text:'#185FA5'},
+  {bg:'#FBF3DC', border:'#D4A017', text:'#9C7A0F'},
+  {bg:'#FBE9E7', border:'#D4453C', text:'#B83830'},
+  {bg:'#F3E8F5', border:'#9333A8', text:'#9333A8'}
+];
+const KIM_TYPE_COLOR = {
+  'Hào phóng': PALETTE[0], 'Trí tuệ': PALETTE[2], 'Sức khoẻ': PALETTE[1],
+  'Kết nối': PALETTE[5], 'Khẩn cấp': PALETTE[4], 'Khác': PALETTE[3]
+};
+const KIM_TYPE_ICON = {
+  'Hào phóng':'🤲','Trí tuệ':'📖','Sức khoẻ':'🌿','Kết nối':'🤝','Khẩn cấp':'🚨','Khác':'✨'
+};
+let selectedGoal = -1;
 
-  if (!apiKey || !dbUrl) { errEl.textContent = '⚠ Please fill in both API key and Database URL.'; errEl.style.display='block'; return; }
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  const profile = getProfile();
+  if(profile){ showApp(); }
+  const url = getUrl();
+  if(url){
+    const inp = g('setup-url');
+    if(inp) inp.value = url;
+  }
+  g('k-date').value = today();
+  // pre-populate 4 suggested empty goal rows on setup screen
+  const setupList = g('setup-goals-list');
+  if(setupList){
+    for(let i=0;i<4;i++) setupList.appendChild(makeSetupGoalRow(i));
+  }
+});
 
+function showApp(){
+  g('sc-setup').classList.remove('active');
+  g('main-nav').style.display = 'flex';
+  g('profile-bar').style.display = 'flex';
+  updateProfileBar();
+  renderGoalChips();
+  goNav('plan');
+}
+
+function updateProfileBar(){
+  const p = getProfile();
+  if(!p) return;
+  const name = p.name || '?';
+  g('profile-avatar').textContent = name[0].toUpperCase();
+  g('profile-name-display').textContent = name;
+  const now = new Date();
+  g('profile-date-display').textContent = now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  const url = getUrl();
+  g('sync-dot').className = 'sync-dot ' + (url ? 'ok' : 'off');
+}
+
+// ── SETUP ──
+const SETUP_PLACEHOLDERS = [
+  '❤️ VD: Mục tiêu về gia đình & các mối quan hệ',
+  '💰 VD: Mục tiêu về tài chính',
+  '🌿 VD: Mục tiêu về sức khoẻ thân tâm trí',
+  '⭐ VD: Mục tiêu về lan toả giá trị / cộng đồng'
+];
+
+function makeSetupGoalRow(idx){
+  const row = document.createElement('div');
+  row.className = 'goal-input-row';
+  const ph = SETUP_PLACEHOLDERS[idx] || 'VD: Mục tiêu của bạn...';
+  row.innerHTML = `
+    <div class="goal-num">${idx+1}</div>
+    <input type="text" class="setup-goal-input" placeholder="${ph}">
+    <button type="button" onclick="this.parentElement.remove(); renumberSetupGoals();" style="border:none;background:none;color:var(--ink-muted);font-size:16px;cursor:pointer;flex-shrink:0;width:24px">✕</button>
+  `;
+  return row;
+}
+
+function addSetupGoalField(){
+  const list = g('setup-goals-list');
+  const count = list.querySelectorAll('.goal-input-row').length;
+  list.appendChild(makeSetupGoalRow(count));
+}
+
+function renumberSetupGoals(){
+  const rows = g('setup-goals-list').querySelectorAll('.goal-input-row');
+  rows.forEach((row,i)=>{ row.querySelector('.goal-num').textContent = i+1; });
+}
+
+function saveSetup(){
+  const name = g('setup-name').value.trim();
+  const why = g('setup-why').value.trim();
+  const goals = Array.from(g('setup-goals-list').querySelectorAll('.setup-goal-input'))
+    .map(inp => inp.value.trim()).filter(v => v.length > 0);
+  if(!name){ toast('Vui lòng nhập tên của bạn!','#D4453C'); return; }
+  const profile = { name, why, goals, createdAt: today() };
+  localStorage.setItem(K.profile, JSON.stringify(profile));
+  const url = g('setup-url').value.trim();
+  if(url) localStorage.setItem(K.url, url);
+  showApp();
+  toast('Chào mừng '+name+'! 🌱 Hành trình bắt đầu!', '#3D7A3D');
+}
+
+// ── NAVIGATION ──
+function goNav(t){
+  ['plan','do','kim','dash','me'].forEach(s=>{
+    g('sc-'+s)?.classList.toggle('active', s===t);
+    g('nav-'+s)?.classList.toggle('active', s===t);
+  });
+  g('sc-setup')?.classList.remove('active');
+  if(t==='plan') renderGoalChips();
+  if(t==='kim') renderKim();
+  if(t==='dash') renderDash();
+  if(t==='me') renderMe();
+  window.scrollTo(0,0);
+}
+function go(t){ goNav(t); }
+
+// ── GOAL CHIPS ──
+function renderGoalChips(){
+  const profile = getProfile();
+  const goals = (profile && profile.goals && profile.goals.length) ? profile.goals : [];
+  const wrap = g('goal-chips');
+  if(!goals.length){
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--ink-muted)">Bạn chưa có mục tiêu nào. Vào tab "Hồ sơ" để thêm nhé.</div>';
+    return;
+  }
+  wrap.innerHTML = goals.map((txt,i)=>{
+    const c = PALETTE[i % PALETTE.length];
+    return `<div class="chip" data-val="${i}" onclick="selectGoal(${i})" style="border-color:${c.border}33">${txt}</div>`;
+  }).join('');
+
+  // also populate kim goal select
+  const sel = g('k-goal');
+  if(sel){
+    sel.innerHTML = '<option value="-1">— Không gắn mục tiêu —</option>' +
+      goals.map((txt,i)=>`<option value="${i}">${txt}</option>`).join('');
+  }
+}
+
+function selectGoal(idx){
+  selectedGoal = idx;
+  const profile = getProfile();
+  const c = PALETTE[idx % PALETTE.length];
+  document.querySelectorAll('#goal-chips .chip').forEach((chip,i)=>{
+    if(i===idx){
+      chip.style.background = c.bg;
+      chip.style.borderColor = c.border;
+      chip.style.color = c.text;
+    } else {
+      chip.style.background = '';
+      chip.style.borderColor = PALETTE[i % PALETTE.length].border+'33';
+      chip.style.color = '';
+    }
+  });
+  const detail = g('goal-detail-text');
+  if(profile && profile.goals && profile.goals[idx]){
+    detail.style.display='block';
+    detail.textContent = '🎯 '+profile.goals[idx];
+  }
+}
+
+// ── LOAD TODAY ENTRY ──
+function getTodayEntry(){
+  const log = getLog();
+  const td = today();
+  let e = log.find(x=>x.date===td);
+  if(!e){
+    e = {date:td, goal:-1, landBuddy:'', landOn:'', landNhieu:'', landKhan:'',
+         tructiep:'', giantiep:'', day4buoc:'',
+         b3:'', b4a:'', b4b:'', b4c:'', b4d:'',
+         bs1:'', bs2:'', bs3:'', bs4:'', synced:false};
+    log.unshift(e);
+  }
+  return {log, e};
+}
+
+// ── SAVE PLAN (B1-B2) ──
+async function savePlan(){
+  const {log, e} = getTodayEntry();
+  e.goal = selectedGoal;
+  e.landBuddy = g('land-buddy').value.trim();
+  e.landOn = g('land-on').value.trim();
+  e.landNhieu = g('land-nhieu').value.trim();
+  e.landKhan = g('land-khan').value.trim();
+  e.tructiep = g('t-tructiep').value.trim();
+  e.giantiep = g('t-giantiep').value.trim();
+  e.day4buoc = g('t-day4buoc').value.trim();
+  const idx = log.findIndex(x=>x.date===e.date);
+  if(idx>=0) log[idx]=e; else log.unshift(e);
+  saveLog(log);
+  const btn = g('btn-plan');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang lưu...';
+  const ok = await syncEntry(e);
+  btn.disabled = false;
+  btn.innerHTML = '💾 Lưu kế hoạch';
+  ok ? toast('Đã lưu kế hoạch! 🌱 Chúc gieo hạt tốt lành.','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+}
+
+// ── SAVE DO (B3-B4) ──
+async function saveDo(){
+  const {log, e} = getTodayEntry();
+  e.b3 = g('b3-done').value.trim();
+  e.b4a = g('b4a').value.trim();
+  e.b4b = g('b4b').value.trim();
+  e.b4c = g('b4c').value.trim();
+  e.b4d = g('b4d').value.trim();
+  e.bs1 = g('bs1').value.trim();
+  e.bs2 = g('bs2').value.trim();
+  e.bs3 = g('bs3').value.trim();
+  e.bs4 = g('bs4').value.trim();
+  const idx = log.findIndex(x=>x.date===e.date);
+  if(idx>=0) log[idx]=e; else log.unshift(e);
+  saveLog(log);
+  const btn = g('btn-do');
+  btn.disabled=true;
+  btn.textContent='⏳ Đang đồng bộ...';
+  const ok = await syncEntry(e);
+  btn.disabled=false;
+  btn.innerHTML='💾 Lưu & Đồng bộ Sheets';
+  ok ? toast('Đã lưu & đồng bộ Sheets! ☕✨','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+}
+
+// ── SỔ KIM CƯƠNG ──
+async function saveKim(){
+  const kims = getKim();
+  const entry = {
+    id: Date.now(),
+    type: g('k-type').value,
+    date: g('k-date').value,
+    land: g('k-land').value.trim(),
+    amt: g('k-amt').value,
+    detail: g('k-detail').value.trim(),
+    goal: parseInt(g('k-goal').value)
+  };
+  if(!entry.land){ toast('Vui lòng nhập mảnh đất!','#D4453C'); return; }
+  kims.unshift(entry);
+  saveKimData(kims);
+  g('k-land').value=''; g('k-amt').value=''; g('k-detail').value='';
+  g('k-date').value = today();
+  renderKim();
+
+  const btn = g('btn-kim');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang lưu...';
+  const ok = await syncKim(entry);
+  btn.disabled = false;
+  btn.innerHTML = '💎 Thêm vào Sổ Kim Cương';
+  ok ? toast('Đã thêm hạt giống khủng! 💎✨','#D4A017')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+}
+
+async function syncKim(entry){
+  const url = getUrl();
+  if(!url) return false;
   try {
-    const app = initializeApp({ apiKey, databaseURL: dbUrl }, 'mw-app');
-    db = getDatabase(app);
-    sessionPath = `magic-wand/${session}`;
-    // Test connection
-    await get(ref(db, `${sessionPath}/__test`));
-    document.getElementById('configBanner').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
-    startListening();
-  } catch(e) {
-    errEl.textContent = '⚠ Could not connect. Check your API key and Database URL, and make sure Realtime Database is enabled.';
-    errEl.style.display = 'block';
+    const profile = getProfile();
+    const payload = { type:'kim', user: profile?.name||'?', ...entry };
+    const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    const json = await res.json();
+    return json.success;
+  } catch(err){ return false; }
+}
+
+function renderKim(){
+  const kims = getKim();
+  const profile = getProfile();
+  const goals = (profile && profile.goals) ? profile.goals : [];
+  const thisYear = new Date().getFullYear().toString();
+
+  const yearKims = kims.filter(k=>k.date && k.date.startsWith(thisYear));
+  const totalAmt = yearKims.reduce((sum,k)=> sum + (parseInt(k.amt)||0), 0);
+  g('kim-total-num').textContent = kims.length;
+  g('kim-total-amt').textContent = (totalAmt>0 ? fmtMoney(totalAmt)+' ' : '') + 'đã gieo trong năm '+thisYear;
+
+  const el = g('kim-list');
+  if(!kims.length){
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">💎</div>Chưa có hạt giống khủng nào.<br>Hãy ghi lại khoảnh khắc gieo hạt đáng nhớ!</div>';
+    return;
   }
-};
-
-function startListening() {
-  onValue(ref(db, `${sessionPath}/wishes`), snap => {
-    wishes = snap.val() || {};
-    renderAll();
-  });
-}
-
-window.submitWish = async function() {
-  const text = document.getElementById('wishInput').value.trim();
-  if (!text) { alert('Write your wish first!'); return; }
-  const anon = document.getElementById('anonCheck').checked;
-  await push(ref(db, `${sessionPath}/wishes`), {
-    text,
-    author: anon ? 'Anonymous' : 'You',
-    tag: selectedTag,
-    waves: 0,
-    ts: Date.now()
-  });
-  document.getElementById('wishInput').value = '';
-  const toast = document.getElementById('successToast');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-};
-
-window.waveWish = async function(id) {
-  const w = wishes[id];
-  if (!w) return;
-  if (myVotes[id]) {
-    await update(ref(db, `${sessionPath}/wishes/${id}`), { waves: Math.max(0,(w.waves||0)-1) });
-    delete myVotes[id];
-  } else {
-    await update(ref(db, `${sessionPath}/wishes/${id}`), { waves: (w.waves||0)+1 });
-    myVotes[id] = true;
-  }
-};
-
-window.setSort = function(mode) {
-  sortMode = mode;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sort-'+mode).classList.add('active');
-  renderWall();
-};
-
-window.switchTab = function(tab) {
-  ['submit','wall','themes','winner'].forEach(t => {
-    document.getElementById('panel-'+t).className = 'panel'+(t===tab?' active':'');
-    document.getElementById('tab-'+t).className = 'tab'+(t===tab?' active':'');
-  });
-};
-
-window.copySummary = function() {
-  const arr = Object.entries(wishes).map(([id,w])=>({id,...w}));
-  const sorted = arr.sort((a,b)=>(b.waves||0)-(a.waves||0));
-  const counts = {};
-  ALL_TAGS.forEach(t=>counts[t]=0);
-  arr.forEach(w=>{if(counts[w.tag]!==undefined)counts[w.tag]++;});
-  const themes = Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  const top = sorted[0];
-  let txt = `HR CONNECT — MAGIC WAND SESSION SUMMARY\n\n`;
-  txt += `TOTAL WISHES: ${arr.length} | TOTAL WAVES: ${arr.reduce((s,w)=>s+(w.waves||0),0)}\n\n`;
-  txt += `TOP THEMES:\n${themes.map(([t,c])=>`  • ${t}: ${c} wish${c!==1?'es':''}`).join('\n')}\n\n`;
-  if (top) txt += `MOST MAGICAL WISH (${top.waves||0} waves):\n"${top.text}"\n\n`;
-  txt += `ALL WISHES (by votes):\n${sorted.map((w,i)=>`${i+1}. [${w.waves||0} waves] ${w.text} — ${w.tag}`).join('\n')}`;
-  navigator.clipboard.writeText(txt).then(()=>{
-    const el = document.getElementById('copySuccess');
-    el.classList.add('show');
-    setTimeout(()=>el.classList.remove('show'),3000);
-  });
-};
-
-function renderAll() {
-  renderStats(); renderWall(); renderThemes(); renderWinner();
-}
-
-function renderStats() {
-  const arr = Object.values(wishes);
-  document.getElementById('stat-w').textContent = arr.length;
-  document.getElementById('stat-v').textContent = arr.reduce((s,w)=>s+(w.waves||0),0);
-  document.getElementById('stat-t').textContent = new Set(arr.map(w=>w.tag)).size;
-}
-
-function renderWall() {
-  const list = document.getElementById('wishList');
-  const arr = Object.entries(wishes).map(([id,w])=>({id,...w}));
-  if (!arr.length) { list.innerHTML='<div class="empty">No wishes yet — be the first to wave your wand!</div>'; return; }
-  let sorted = [...arr];
-  if (sortMode==='top') sorted.sort((a,b)=>(b.waves||0)-(a.waves||0));
-  else sorted.sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const maxW = Math.max(...arr.map(w=>w.waves||0));
-  list.innerHTML = sorted.map(w => {
-    const isTop = (w.waves||0)===maxW && maxW>0;
-    return `<div class="wish-card${isTop?' top':''}">
-      <p class="wish-text">${escHtml(w.text)}</p>
-      <div class="wish-meta">
-        <span class="wish-author">${escHtml(w.author||'Anonymous')}</span>
-        <span class="wish-tag-pill" style="background:${TAG_COLORS[w.tag]||'#4A3880'}22;color:${TAG_COLORS[w.tag]||'#4A3880'}">${w.tag||'Other'}</span>
+  el.innerHTML = kims.slice(0,50).map(k=>{
+    const c = KIM_TYPE_COLOR[k.type] || PALETTE[3];
+    const icon = KIM_TYPE_ICON[k.type] || '💎';
+    const goalTxt = (k.goal>=0 && goals[k.goal]) ? goals[k.goal] : '';
+    return `<div class="kim-item">
+      <div class="kim-gem" style="background:${c.bg};color:${c.text}">${icon}</div>
+      <div>
+        <div class="kim-land">${k.land}</div>
+        ${k.detail?`<div class="kim-detail">${k.detail.slice(0,80)}${k.detail.length>80?'...':''}</div>`:''}
+        <div class="kim-date">${fmtD(k.date)}${goalTxt?' · '+goalTxt.slice(0,20):''}</div>
+        <span class="kim-type-tag" style="background:${c.bg};color:${c.text}">${k.type}</span>
       </div>
-      <div class="wish-actions">
-        <button class="wave-btn${myVotes[w.id]?' waved':''}" onclick="waveWish('${w.id}')">
-          🪄 ${myVotes[w.id]?'Waved!':'Wave'}&nbsp;&nbsp;${w.waves||0}
-        </button>
-        ${isTop?'<span class="top-badge">Most magical ✨</span>':''}
+      <div class="kim-amt">${k.amt?fmtMoney(k.amt):''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SYNC ──
+async function syncEntry(entry){
+  const url = getUrl();
+  if(!url) return false;
+  try {
+    const profile = getProfile();
+    const payload = { type:'checkin', user: profile?.name||'?', ...entry };
+    const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    const json = await res.json();
+    if(json.success){ entry.synced = true; g('sync-dot').className='sync-dot ok'; }
+    return json.success;
+  } catch(err){ return false; }
+}
+
+async function loadFromSheets(){
+  const url = getUrl();
+  if(!url){ toast('Chưa kết nối Sheets. Vào Hồ sơ để cài.','#D4453C'); return; }
+  toast('Đang tải từ Sheets...','#D4A017');
+  try {
+    const res = await fetch(url+'?type=checkin');
+    const json = await res.json();
+    if(json.success){
+      toast('Tải thành công '+json.data.length+' check-in! 🎉','#3D7A3D');
+      renderDash();
+    } else {
+      toast('Lỗi kết nối Sheets.','#D4453C');
+    }
+  } catch(e){
+    toast('Không thể kết nối Sheets. Kiểm tra URL.','#D4453C');
+  }
+}
+
+// ── DASHBOARD ──
+function renderDash(){
+  const log = getLog();
+  const profile = getProfile();
+  const now = new Date();
+  const td = today();
+  const thisMonth = now.toISOString().slice(0,7);
+  const thisYear = now.getFullYear().toString();
+  const daysInMonth = new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+
+  g('dash-month-label').textContent = 'Tháng '+now.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+
+  const monthLog = log.filter(x=>x.date.startsWith(thisMonth));
+  const yearLog = log.filter(x=>x.date.startsWith(thisYear));
+  g('d-total').textContent = log.length;
+  g('d-month').textContent = monthLog.length;
+  g('d-year').textContent = yearLog.length;
+
+  const sorted = [...log].sort((a,b)=>b.date.localeCompare(a.date));
+  let streak=0, cur=new Date(td);
+  for(let i=0;i<sorted.length;i++){
+    const d=new Date(sorted[i].date+'T00:00:00');
+    if(Math.round((cur-d)/86400000)<=1){streak++;cur=d;}else break;
+  }
+  g('d-streak').textContent = streak;
+
+  const cal = g('month-calendar');
+  const logDates = new Set(monthLog.map(x=>x.date));
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startDow = (firstDay.getDay()+6)%7;
+  let cells = '';
+  for(let i=0;i<startDow;i++) cells += '<div class="month-day empty-cell"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr = thisMonth+'-'+(d<10?'0':'')+d;
+    const isToday = dateStr===td;
+    const hasLog = logDates.has(dateStr);
+    cells += `<div class="month-day${hasLog?' has-log':''}${isToday?' today':''}">${d}</div>`;
+  }
+  cal.innerHTML = cells;
+
+  const goals = (profile && profile.goals && profile.goals.length) ? profile.goals : [];
+  const progEl = g('progress-list');
+  if(!goals.length){
+    progEl.innerHTML = '<div class="empty-state" style="padding:16px"><div class="empty-icon">🎯</div>Chưa có mục tiêu nào.<br>Vào tab "Hồ sơ" để thêm mục tiêu nhé.</div>';
+  } else {
+    progEl.innerHTML = goals.map((txt,i)=>{
+      const c = PALETTE[i % PALETTE.length];
+      const days = monthLog.filter(x=>x.goal===i).length;
+      const pct = Math.round(days/daysInMonth*100);
+      return `<div class="prog-card">
+        <div class="prog-head"><div class="prog-title">${txt.slice(0,30)}</div><div class="prog-pct">${pct}%</div></div>
+        <div class="bar-bg"><div class="bar" style="background:${c.border};width:${pct}%"></div></div>
+        <div class="prog-meta">${days} ngày check-in tháng này</div>
+      </div>`;
+    }).join('');
+  }
+
+  const el = g('log-list');
+  if(!log.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🌱</div>Chưa có check-in nào.<br>Bắt đầu gieo hạt hôm nay nhé!</div>';
+    return;
+  }
+  const goalLabels = goals;
+  el.innerHTML = log.slice(0,10).map(x=>{
+    const hasGoal = x.goal>=0 && goalLabels[x.goal];
+    const c = hasGoal ? PALETTE[x.goal % PALETTE.length] : null;
+    const goalText = hasGoal ? '🎯 '+goalLabels[x.goal].slice(0,18) : '—';
+    const parts = [];
+    if(x.tructiep) parts.push('🤲 '+x.tructiep.slice(0,60));
+    if(x.day4buoc) parts.push('📖 '+x.day4buoc.slice(0,60));
+    if(x.b3) parts.push('✅ '+x.b3.slice(0,60));
+    if(x.b4a) parts.push('☕ "'+x.b4a.slice(0,50)+'"');
+    return `<div class="log-item">
+      <div class="log-top">
+        <span class="log-date">${fmtD(x.date)}</span>
+        <span class="tag" style="background:${c?c.bg:'var(--border-soft)'};color:${c?c.text:'var(--ink-muted)'}">${goalText}</span>
+      </div>
+      ${parts.map(p=>`<div class="log-text">${p}${p.length>=60?'...':''}</div>`).join('')}
+      <div class="tags">
+        ${x.landBuddy?'<span class="tag">🤝 '+x.landBuddy.slice(0,20)+'</span>':''}
+        ${x.landOn?'<span class="tag">🙏 '+x.landOn.slice(0,20)+'</span>':''}
+        ${x.landNhieu?'<span class="tag">🌍 '+x.landNhieu.slice(0,20)+'</span>':''}
+        ${x.landKhan?'<span class="tag">🚨 '+x.landKhan.slice(0,20)+'</span>':''}
+        ${x.synced?'<span class="tag" style="background:var(--leaf-light);color:var(--leaf-dark)">✓ Sheets</span>':''}
       </div>
     </div>`;
   }).join('');
 }
 
-function renderThemes() {
-  const arr = Object.values(wishes);
-  const counts = {};
-  ALL_TAGS.forEach(t=>counts[t]=0);
-  arr.forEach(w=>{if(counts[w.tag]!==undefined)counts[w.tag]++;});
-  const sorted = Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  const maxC = sorted.length ? sorted[0][1] : 1;
-  const grid = document.getElementById('themeGrid');
-  if (!sorted.length) { grid.innerHTML='<div class="empty">No wishes yet.</div>'; return; }
-  grid.innerHTML = sorted.map(([tag,count])=>
-    `<div class="theme-card">
-      <div class="theme-name" style="color:${TAG_COLORS[tag]}">${tag}</div>
-      <div class="theme-count">${count} wish${count!==1?'es':''}</div>
-      <div class="theme-bar-track"><div class="theme-bar-fill" style="width:${Math.round(count/maxC*100)}%;background:${TAG_COLORS[tag]}"></div></div>
-    </div>`
-  ).join('');
+// ── HỒ SƠ CỦA TÔI ──
+function renderMe(){
+  const p = getProfile();
+  if(!p) return;
+  g('me-avatar').textContent = p.name?.[0]?.toUpperCase()||'🌱';
+  g('me-streak-name').textContent = p.name||'—';
+  g('me-name').value = p.name||'';
+  g('me-why').value = p.why||'';
+
+  const goals = (p.goals && p.goals.length) ? p.goals : ['',''];
+  const list = g('me-goals-list');
+  list.innerHTML = '';
+  goals.forEach((val, i) => list.appendChild(makeGoalRow(val, i)));
+
+  const url = getUrl();
+  if(url) g('me-url').value = url;
+
+  const log = getLog();
+  const sorted = [...log].sort((a,b)=>b.date.localeCompare(a.date));
+  let streak=0, cur=new Date(today());
+  for(let i=0;i<sorted.length;i++){
+    const d=new Date(sorted[i].date+'T00:00:00');
+    if(Math.round((cur-d)/86400000)<=1){streak++;cur=d;}else break;
+  }
+  g('me-streak').textContent = streak+' ngày liên tục 🔥';
 }
 
-function renderWinner() {
-  const arr = Object.values(wishes);
-  const area = document.getElementById('winnerArea');
-  if (!arr.length) { area.innerHTML='<div class="empty">No wishes submitted yet.</div>'; return; }
-  const top = [...arr].sort((a,b)=>(b.waves||0)-(a.waves||0))[0];
-  area.innerHTML = `<div class="winner-card">
-    <span class="winner-icon">✨</span>
-    <div class="winner-label">Most magical wish</div>
-    <div class="winner-text">${escHtml(top.text)}</div>
-    <div class="winner-meta">${top.author||'Anonymous'} · ${top.tag||'Other'} · ${top.waves||0} wand waves</div>
-  </div>`;
+function makeGoalRow(value, idx){
+  const row = document.createElement('div');
+  row.className = 'goal-input-row';
+  row.innerHTML = `
+    <div class="goal-num">${idx+1}</div>
+    <input type="text" class="me-goal-input" value="${(value||'').replace(/"/g,'&quot;')}" placeholder="VD: Mục tiêu của bạn...">
+    <button onclick="this.parentElement.remove(); renumberGoals();" style="border:none;background:none;color:var(--ink-muted);font-size:16px;cursor:pointer;flex-shrink:0;width:24px">✕</button>
+  `;
+  return row;
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function addGoalField(){
+  const list = g('me-goals-list');
+  const count = list.querySelectorAll('.goal-input-row').length;
+  list.appendChild(makeGoalRow('', count));
+}
+
+function renumberGoals(){
+  const rows = g('me-goals-list').querySelectorAll('.goal-input-row');
+  rows.forEach((row,i)=>{ row.querySelector('.goal-num').textContent = i+1; });
+}
+
+function saveProfile(){
+  const p = getProfile() || {createdAt: today()};
+  const name = g('me-name').value.trim();
+  if(!name){ toast('Vui lòng nhập tên!','#D4453C'); return; }
+  p.name = name;
+  p.why = g('me-why').value.trim();
+  p.goals = Array.from(g('me-goals-list').querySelectorAll('.me-goal-input'))
+    .map(inp => inp.value.trim()).filter(v => v.length > 0);
+  localStorage.setItem(K.profile, JSON.stringify(p));
+  updateProfileBar();
+  toast('Đã lưu hồ sơ! 🌱','#3D7A3D');
+}
+
+function updateUrl(){
+  const url = g('me-url').value.trim();
+  if(!url){ toast('Vui lòng nhập URL!','#D4453C'); return; }
+  localStorage.setItem(K.url, url);
+  g('sync-dot').className='sync-dot ok';
+  toast('Đã cập nhật URL! ✓','#3D7A3D');
+}
+
+async function testConnection(){
+  const url = g('me-url').value.trim();
+  const res = g('url-test-result');
+  if(!url){ toast('Nhập URL trước!','#D4453C'); return; }
+  res.style.display='block';
+  res.style.background='#FBF3DC';
+  res.style.color='#9C7A0F';
+  res.textContent='⏳ Đang kiểm tra...';
+  try {
+    const r = await fetch(url+'?type=ping');
+    res.style.background='#F1F8E5';
+    res.style.color='#3D7A3D';
+    res.textContent='✓ Kết nối thành công! Sheets đã sẵn sàng.';
+  } catch(e){
+    res.style.background='#FBE9E7';
+    res.style.color='#B83830';
+    res.textContent='✗ Không kết nối được. Kiểm tra lại URL và quyền Deploy.';
+  }
+}
+
+function resetApp(){
+  if(!confirm('Xoá toàn bộ dữ liệu và bắt đầu lại?')) return;
+  Object.values(K).forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+// ── TOAST ──
+function toast(msg, color='#3D7A3D'){
+  const wrap = g('toast-wrap');
+  const el = document.createElement('div');
+  el.className='toast';
+  el.textContent=msg;
+  el.style.background=color;
+  wrap.appendChild(el);
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),300); },2800);
 }
 </script>
 </body>
