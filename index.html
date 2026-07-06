@@ -1491,7 +1491,10 @@ function renderDash(){
   const thisYear = now.getFullYear().toString();
   const daysInMonth = new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
 
-  g('dash-month-label').textContent = 'Tháng '+now.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+  {
+    const label = now.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+    g('dash-month-label').textContent = label.charAt(0).toUpperCase()+label.slice(1);
+  }
 
   const monthLog = log.filter(x=>x.date.startsWith(thisMonth));
   const yearLog = log.filter(x=>x.date.startsWith(thisYear));
