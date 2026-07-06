@@ -513,7 +513,7 @@ input:checked+.sl:before{transform:translateX(18px)}
     <!-- Error state -->
     <div id="courses-error" style="display:none;padding:32px 20px;text-align:center">
       <div style="font-size:32px;margin-bottom:8px">😢</div>
-      <div style="font-size:15px;color:var(--ink-muted);margin-bottom:12px">Chưa kết nối Sheets hoặc chưa có dữ liệu.<br>Vào Hồ sơ → cài Google Sheets URL để bật tính năng này.</div>
+      <div style="font-size:15px;color:var(--ink-muted);margin-bottom:12px">Chưa có nội dung khoá học/bảng tin lúc này.<br>Vui lòng thử lại sau ít phút.</div>
       <button onclick="loadCourses()" style="padding:8px 16px;border:1.5px solid var(--leaf);border-radius:8px;background:none;color:var(--leaf);font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">↻ Thử lại</button>
     </div>
 
@@ -1110,6 +1110,13 @@ function saveKimData(d){ localStorage.setItem(K.kim, JSON.stringify(d)); }
 function getProfile(){ try{ return JSON.parse(localStorage.getItem(K.profile))||null; }catch{ return null; } }
 function getUrl(){ return localStorage.getItem(K.url)||''; }
 
+// ── ADMIN CONTENT URL (Khoá học & Banner) ──
+// Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
+// Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
+// tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
+const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+function getAdminUrl(){ return ADMIN_CONTENT_URL; }
+
 const PALETTE = [
   {bg:'#FCEDE5', border:'#E8835A', text:'#C2562A'},
   {bg:'#F1F8E5', border:'#7CB342', text:'#3D7A3D'},
@@ -1145,10 +1152,10 @@ window.addEventListener('DOMContentLoaded', () => {
   loadBanner();
 });
 
-// ── BANNER ĐỘNG TỪ GOOGLE SHEETS ──
+// ── BANNER ĐỘNG TỪ GOOGLE SHEETS ADMIN ──
 async function loadBanner(){
-  const url = getUrl();
-  if(!url) return; // chưa kết nối Sheets → giữ banner mặc định trong code
+  const url = getAdminUrl();
+  if(!url) return; // Admin chưa cấu hình ADMIN_CONTENT_URL → giữ banner mặc định trong code
   try{
     const res = await fetch(url+'?type=banner');
     const json = await res.json();
@@ -1686,7 +1693,7 @@ g('courses-modal').addEventListener('click', function(e){
 });
 
 async function loadCourses(){
-  const url = getUrl();
+  const url = getAdminUrl();
   g('courses-loading').style.display='block';
   g('courses-error').style.display='none';
   g('courses-list').style.display='none';
