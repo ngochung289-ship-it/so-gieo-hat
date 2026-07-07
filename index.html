@@ -677,6 +677,41 @@ input:checked+.sl:before{transform:translateX(18px)}
 </div>
 
 <!-- ══════════════════════════════════ -->
+<!-- SCREEN: VIỆC & BIẾT ƠN -->
+<!-- ══════════════════════════════════ -->
+<div id="sc-todo" class="screen">
+  <div class="page-header">
+    <div class="page-title">✅ Việc & Biết ơn</div>
+    <div class="page-sub">Checklist và 10 điều biết ơn — riêng theo từng ngày</div>
+  </div>
+
+  <!-- CHECKLIST / TO-DO (theo ngày) -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--sprout-light)">✅</div>
+      <div><div class="card-title">Checklist việc cần làm hôm nay</div><div class="card-sub">Danh sách việc riêng cho mỗi ngày</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" id="todo-input" placeholder="Thêm việc cần làm..." style="flex:1" onkeydown="if(event.key==='Enter')addTodo()">
+      <button onclick="addTodo()" style="padding:0 16px;border:none;border-radius:10px;background:var(--leaf);color:white;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Thêm</button>
+    </div>
+    <div id="todo-list"></div>
+  </div>
+
+  <!-- 10 ĐIỀU BIẾT ƠN (theo ngày) -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon" style="background:var(--gold-light)">🙏</div>
+      <div><div class="card-title">10 Điều Biết Ơn Hôm Nay</div><div class="card-sub">Viết ngắn gọn, càng cụ thể càng tốt</div></div>
+    </div>
+    <div id="gratitude-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button class="btn btn-sprout" id="btn-gratitude" onclick="saveGratitude()" style="margin-top:12px">🙏 Lưu 10 điều biết ơn</button>
+  </div>
+
+  <div style="height:8px"></div>
+</div>
+
+<!-- ══════════════════════════════════ -->
 <!-- SCREEN: B3-B4 (Thực hiện) -->
 <!-- ══════════════════════════════════ -->
 <div id="sc-do" class="screen">
@@ -941,6 +976,9 @@ input:checked+.sl:before{transform:translateX(18px)}
   <button class="nav-btn" id="nav-do" onclick="goNav('do')">
     <span class="nav-icon">☀️</span>B3-B4
   </button>
+  <button class="nav-btn" id="nav-todo" onclick="goNav('todo')">
+    <span class="nav-icon">✅</span>To Do
+  </button>
   <button class="nav-btn" id="nav-tc" onclick="goNav('tc')">
     <span class="nav-icon">💰</span>Tài chính
   </button>
@@ -1114,8 +1152,110 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
+
+// ── CHECKLIST / TO-DO (local only, theo ngày) ──
+K.todo = 'k365_todo_v1';
+function getTodos(){ try{ return JSON.parse(localStorage.getItem(K.todo))||[]; }catch{ return []; } }
+function saveTodos(d){ localStorage.setItem(K.todo, JSON.stringify(d)); }
+async function syncTodoDay(){
+  const url = getUrl();
+  if(!url) return false;
+  try {
+    const profile = getProfile();
+    const td = today();
+    const items = getTodos().filter(x=>x.date===td);
+    const payload = { type:'todo', user: profile?.name||'?', date: td, items };
+    const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    const json = await res.json();
+    return json.success;
+  } catch(err){ return false; }
+}
+function addTodo(){
+  const inp = g('todo-input');
+  const text = inp.value.trim();
+  if(!text) return;
+  const list = getTodos();
+  list.push({ id:Date.now(), date:today(), text, done:false });
+  saveTodos(list);
+  inp.value='';
+  renderTodo();
+  syncTodoDay();
+}
+function toggleTodo(id){
+  const list = getTodos();
+  const item = list.find(x=>x.id===id);
+  if(item) item.done = !item.done;
+  saveTodos(list);
+  renderTodo();
+  syncTodoDay();
+}
+function deleteTodo(id){
+  saveTodos(getTodos().filter(x=>x.id!==id));
+  renderTodo();
+  syncTodoDay();
+}
+function renderTodo(){
+  const el = g('todo-list');
+  if(!el) return;
+  const td = today();
+  const list = getTodos().filter(x=>x.date===td);
+  if(!list.length){ el.innerHTML = '<div style="font-size:13px;color:var(--ink-muted);padding:6px 2px">Chưa có việc nào hôm nay — thêm việc đầu tiên nhé!</div>'; return; }
+  el.innerHTML = list.map(x=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 4px;border-bottom:1px solid var(--border-soft)">
+      <input type="checkbox" ${x.done?'checked':''} onchange="toggleTodo(${x.id})" style="width:19px;height:19px;flex-shrink:0;accent-color:var(--leaf)">
+      <div style="flex:1;font-size:14px;${x.done?'text-decoration:line-through;color:var(--ink-muted)':'color:var(--ink)'}">${x.text}</div>
+      <button onclick="deleteTodo(${x.id})" style="border:none;background:none;color:var(--ink-muted);font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+// ── 10 ĐIỀU BIẾT ƠN HÀNG NGÀY (local only, theo ngày) ──
+K.gratitude = 'k365_gratitude_v1';
+function getGratitudeLog(){ try{ return JSON.parse(localStorage.getItem(K.gratitude))||[]; }catch{ return []; } }
+function saveGratitudeLog(d){ localStorage.setItem(K.gratitude, JSON.stringify(d)); }
+function renderGratitude(){
+  const el = g('gratitude-list');
+  if(!el) return;
+  const list = getGratitudeLog();
+  const td = today();
+  const entry = list.find(x=>x.date===td);
+  const items = (entry && entry.items) ? entry.items : Array(10).fill('');
+  el.innerHTML = items.map((val,i)=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:22px;height:22px;border-radius:7px;background:var(--gold-light);color:#9C7A0F;font-size:11.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+      <input type="text" id="grat-${i}" value="${val.replace(/"/g,'&quot;')}" placeholder="Điều biết ơn số ${i+1}...">
+    </div>`).join('');
+}
+async function saveGratitude(){
+  const items = [];
+  for(let i=0;i<10;i++){ items.push(g('grat-'+i).value.trim()); }
+  if(items.every(x=>!x)){ toast('Vui lòng điền ít nhất 1 điều biết ơn!','#D4453C'); return; }
+  const list = getGratitudeLog();
+  const td = today();
+  const idx = list.findIndex(x=>x.date===td);
+  const entry = { date:td, items };
+  if(idx>=0) list[idx]=entry; else list.unshift(entry);
+  saveGratitudeLog(list);
+  const btn = g('btn-gratitude');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang lưu...';
+  const url = getUrl();
+  let ok = false;
+  if(url){
+    try {
+      const profile = getProfile();
+      const payload = { type:'gratitude', user: profile?.name||'?', date: td, items };
+      const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+      const json = await res.json();
+      ok = json.success;
+    } catch(err){ ok = false; }
+  }
+  btn.disabled = false;
+  btn.innerHTML = '🙏 Lưu 10 điều biết ơn';
+  ok ? toast('Đã lưu & đồng bộ Sheets! 🙏✨','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+}
 
 const PALETTE = [
   {bg:'#FCEDE5', border:'#E8835A', text:'#C2562A'},
@@ -1236,12 +1376,13 @@ function saveSetup(){
 
 // ── NAVIGATION ──
 function goNav(t){
-  ['plan','do','kim','tc','dash','me'].forEach(s=>{
+  ['plan','do','todo','kim','tc','dash','me'].forEach(s=>{
     g('sc-'+s)?.classList.toggle('active', s===t);
     g('nav-'+s)?.classList.toggle('active', s===t);
   });
   g('sc-setup')?.classList.remove('active');
-  if(t==='plan') renderGoalChips();
+  if(t==='plan'){ renderGoalChips(); }
+  if(t==='todo'){ renderTodo(); renderGratitude(); }
   if(t==='kim') renderKim();
   if(t==='tc') renderTc();
   if(t==='dash') renderDash();
