@@ -523,6 +523,25 @@ input:checked+.sl:before{transform:translateX(18px)}
   </div>
 </div>
 
+<!-- JOURNAL MODAL (Nhật ký đầy đủ) -->
+<div id="journal-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(36,48,24,.45);backdrop-filter:blur(3px)">
+  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-radius:24px 24px 0 0;max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0)">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 0;position:sticky;top:0;background:var(--surface);z-index:2">
+      <div style="font-size:19.5px;font-weight:800;color:var(--ink)">📖 Nhật ký đầy đủ</div>
+      <button onclick="closeJournal()" style="border:none;background:var(--border-soft);border-radius:50%;width:30px;height:30px;font-size:18px;cursor:pointer;color:var(--ink-soft)">✕</button>
+    </div>
+    <div style="padding:6px 16px 12px">
+      <select id="journal-month-filter" onchange="renderJournalFull()" style="margin:0"></select>
+    </div>
+    <div id="journal-summary" style="margin:0 16px 12px;padding:12px;border-radius:12px;background:var(--leaf-light);font-size:12.5px;color:var(--leaf-dark);font-weight:600"></div>
+
+    <div id="journal-body" style="padding:0 16px 20px"></div>
+
+  </div>
+</div>
+
 <!-- ══════════════════════════════════ -->
 <!-- SCREEN: SETUP -->
 <!-- ══════════════════════════════════ -->
@@ -810,6 +829,11 @@ input:checked+.sl:before{transform:translateX(18px)}
     <div class="kim-hero-sub" id="kim-total-amt">0đ đã gieo trong năm 2026</div>
   </div>
 
+  <div class="stat" style="border-left:3px solid #C79A1E;margin-bottom:14px">
+    <div class="stat-num" id="kim-nguongmo-num" style="font-size:18px;color:#9C7A0F">0</div>
+    <div class="stat-lbl">✨ Hạt khủng ngưỡng mộ đã ghi lại</div>
+  </div>
+
   <div class="card">
     <div class="card-head">
       <div class="card-icon" style="background:var(--gold-light)">💎</div>
@@ -849,9 +873,14 @@ input:checked+.sl:before{transform:translateX(18px)}
     <button class="btn btn-gold" id="btn-kim" onclick="saveKim()" style="margin-top:4px">💎 Thêm vào Sổ Kim Cương</button>
   </div>
 
-  <div class="sec-label">📜 Lịch sử hạt giống khủng</div>
+  <div class="sec-label">📜 Hạt giống mình gieo</div>
   <div class="card">
     <div id="kim-list"><div class="empty-state"><div class="empty-icon">💎</div>Chưa có hạt giống khủng nào.<br>Hãy ghi lại khoảnh khắc gieo hạt đáng nhớ!</div></div>
+  </div>
+
+  <div class="sec-label">✨ Hạt giống ngưỡng mộ từ người khác</div>
+  <div class="card">
+    <div id="kim-list-nguongmo"><div class="empty-state"><div class="empty-icon">✨</div>Chưa có hạt khủng ngưỡng mộ nào.<br>Ghi lại khi thấy ai đó gieo hạt đáng nể!</div></div>
   </div>
 </div>
 
@@ -894,10 +923,14 @@ input:checked+.sl:before{transform:translateX(18px)}
   <div id="progress-list"></div>
 
   <div class="divider"></div>
-  <div class="sec-label">📖 Nhật ký gần nhất</div>
+  <div class="sec-label" style="display:flex;justify-content:space-between;align-items:center">
+    <span>📖 Nhật ký gần nhất</span>
+    <button onclick="openJournal()" style="border:none;background:none;color:var(--leaf-dark);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:2px 0">Xem đầy đủ →</button>
+  </div>
   <div class="card">
     <div id="log-list"><div class="empty-state"><div class="empty-icon">🌱</div>Chưa có check-in nào.<br>Bắt đầu gieo hạt hôm nay nhé!</div></div>
   </div>
+  <button onclick="openJournal()" style="width:100%;margin-top:10px;padding:12px;border:1.5px solid var(--leaf);border-radius:12px;background:none;color:var(--leaf-dark);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">📖 Xem toàn bộ nhật ký & báo cáo tổng kết</button>
 </div>
 
 <!-- ══════════════════════════════════ -->
@@ -1152,7 +1185,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = '';
+const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
@@ -1570,31 +1603,40 @@ function renderKim(){
   const goals = (profile && profile.goals) ? profile.goals : [];
   const thisYear = new Date().getFullYear().toString();
 
-  const yearKims = kims.filter(k=>k.date && k.date.startsWith(thisYear));
-  const totalAmt = yearKims.reduce((sum,k)=> sum + (parseInt(k.amt)||0), 0);
-  g('kim-total-num').textContent = kims.length;
-  g('kim-total-amt').textContent = (totalAmt>0 ? fmtMoney(totalAmt)+' ' : '') + 'đã gieo trong năm '+thisYear;
+  const ownKims = kims.filter(k=>!k.nguongMo);
+  const admireKims = kims.filter(k=>k.nguongMo);
 
-  const el = g('kim-list');
-  if(!kims.length){
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">💎</div>Chưa có hạt giống khủng nào.<br>Hãy ghi lại khoảnh khắc gieo hạt đáng nhớ!</div>';
-    return;
+  const yearOwnKims = ownKims.filter(k=>k.date && k.date.startsWith(thisYear));
+  const totalAmt = yearOwnKims.reduce((sum,k)=> sum + (parseInt(k.amt)||0), 0);
+  g('kim-total-num').textContent = ownKims.length;
+  g('kim-total-amt').textContent = (totalAmt>0 ? fmtMoney(totalAmt)+' ' : '') + 'đã gieo trong năm '+thisYear;
+  g('kim-nguongmo-num').textContent = admireKims.length;
+
+  function renderList(elId, list, emptyIcon, emptyText){
+    const el = g(elId);
+    if(!list.length){
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">${emptyIcon}</div>${emptyText}</div>`;
+      return;
+    }
+    el.innerHTML = list.slice(0,50).map(k=>{
+      const c = KIM_TYPE_COLOR[k.type] || PALETTE[3];
+      const icon = KIM_TYPE_ICON[k.type] || '💎';
+      const goalTxt = (k.goal>=0 && goals[k.goal]) ? goals[k.goal] : '';
+      return `<div class="kim-item">
+        <div class="kim-gem" style="background:${c.bg};color:${c.text}">${icon}</div>
+        <div>
+          <div class="kim-land">${k.land}</div>
+          ${k.detail?`<div class="kim-detail">${k.detail.slice(0,80)}${k.detail.length>80?'...':''}</div>`:''}
+          <div class="kim-date">${fmtD(k.date)}${goalTxt?' · '+goalTxt.slice(0,20):''}</div>
+          <span class="kim-type-tag" style="background:${c.bg};color:${c.text}">${k.type}</span>
+        </div>
+        <div class="kim-amt">${k.amt?fmtMoney(k.amt):''}</div>
+      </div>`;
+    }).join('');
   }
-  el.innerHTML = kims.slice(0,50).map(k=>{
-    const c = KIM_TYPE_COLOR[k.type] || PALETTE[3];
-    const icon = KIM_TYPE_ICON[k.type] || '💎';
-    const goalTxt = (k.goal>=0 && goals[k.goal]) ? goals[k.goal] : '';
-    return `<div class="kim-item">
-      <div class="kim-gem" style="background:${c.bg};color:${c.text}">${icon}</div>
-      <div>
-        <div class="kim-land">${k.land}</div>
-        ${k.detail?`<div class="kim-detail">${k.detail.slice(0,80)}${k.detail.length>80?'...':''}</div>`:''}
-        <div class="kim-date">${fmtD(k.date)}${goalTxt?' · '+goalTxt.slice(0,20):''}</div>
-        <span class="kim-type-tag" style="background:${c.bg};color:${c.text}">${k.type}</span>
-      </div>
-      <div class="kim-amt">${k.amt?fmtMoney(k.amt):''}</div>
-    </div>`;
-  }).join('');
+
+  renderList('kim-list', ownKims, '💎', 'Chưa có hạt giống khủng nào.<br>Hãy ghi lại khoảnh khắc gieo hạt đáng nhớ!');
+  renderList('kim-list-nguongmo', admireKims, '✨', 'Chưa có hạt khủng ngưỡng mộ nào.<br>Ghi lại khi thấy ai đó gieo hạt đáng nể!');
 }
 
 // ── SYNC ──
@@ -1614,16 +1656,126 @@ async function syncEntry(entry){
 async function loadFromSheets(){
   const url = getUrl();
   if(!url){ toast('Chưa kết nối Sheets. Vào Hồ sơ để cài.','#D4453C'); return; }
-  toast('Đang tải từ Sheets...','#D4A017');
+  toast('Đang tải dữ liệu từ Sheets...','#D4A017');
   try {
-    const res = await fetch(url+'?type=checkin');
-    const json = await res.json();
-    if(json.success){
-      toast('Tải thành công '+json.data.length+' check-in! 🎉','#3D7A3D');
-      renderDash();
-    } else {
-      toast('Lỗi kết nối Sheets.','#D4453C');
+    const [checkinRes, kimRes, todoRes, gratRes] = await Promise.all([
+      fetch(url+'?type=checkin').then(r=>r.json()).catch(()=>({success:false})),
+      fetch(url+'?type=kim').then(r=>r.json()).catch(()=>({success:false})),
+      fetch(url+'?type=todo').then(r=>r.json()).catch(()=>({success:false})),
+      fetch(url+'?type=gratitude').then(r=>r.json()).catch(()=>({success:false}))
+    ]);
+
+    let newCheckin = 0, newKim = 0, newTodo = 0, newGrat = 0;
+
+    // ── CHECK-IN (B1-B4) — merge theo ngày, chỉ điền vào field còn trống ──
+    if(checkinRes.success && checkinRes.data){
+      const log = getLog();
+      checkinRes.data.forEach(row=>{
+        const date = row['Ngay'];
+        if(!date) return;
+        const mapped = {
+          landBuddy: row['Nguoi cung mong muon']||'',
+          landOn: row['Nguoi co on']||'',
+          landNhieu: row['Nguoi giup nhieu nguoi']||'',
+          landKhan: row['Truong hop khan cap']||'',
+          tructiep: row['Gieo truc tiep']||'',
+          giantiep: row['Gieo gian tiep']||'',
+          day4buoc: row['Day 4 Buoc']||'',
+          b3: row['Buoc 3 - Hanh dong']||'',
+          b4a: row['4a - Biet on hom nay']||'',
+          b4b: row['4b - Nguong mo']||'',
+          b4c: row['4c - Tang buddy']||'',
+          b4d: row['4d - Biet on 4 buoc']||'',
+          bs1: row['B1 - Cay but']||'',
+          bs2: row['B2 - An han']||'',
+          bs3: row['B3 - Cam ket']||'',
+          bs4: row['B4 - Can bang']||''
+        };
+        const idx = log.findIndex(x=>x.date===date);
+        if(idx>=0){
+          const existing = log[idx];
+          Object.keys(mapped).forEach(k=>{ if(!existing[k] && mapped[k]) existing[k]=mapped[k]; });
+          existing.synced = true;
+        } else {
+          log.push({ date, goals:[], ...mapped, synced:true });
+          newCheckin++;
+        }
+      });
+      saveLog(log);
     }
+
+    // ── KIM CƯƠNG — thêm mới nếu chưa có (so theo ngày + mảnh đất + số tiền) ──
+    if(kimRes.success && kimRes.data){
+      const kims = getKim();
+      const existKey = new Set(kims.map(k=>k.date+'|'+k.land+'|'+k.amt));
+      kimRes.data.forEach(row=>{
+        const date = row['Ngay']||'';
+        const land = row['Manh dat mau mo']||'';
+        const amt = row['So tien (VND)']||'';
+        const key = date+'|'+land+'|'+amt;
+        if(!date || !land || existKey.has(key)) return;
+        kims.push({
+          id: Date.now()+Math.floor(Math.random()*1000),
+          type: row['Loai hat giong']||'Khác',
+          date, land, amt,
+          detail: row['Chi tiet']||'',
+          goal: -1
+        });
+        existKey.add(key);
+        newKim++;
+      });
+      saveKimData(kims);
+    }
+
+    // ── CHECKLIST / TO-DO — thêm mới nếu chưa có (so theo ngày + nội dung) ──
+    if(todoRes.success && todoRes.data){
+      const todos = getTodos();
+      const existKey = new Set(todos.map(t=>t.date+'|'+t.text));
+      todoRes.data.forEach(row=>{
+        const date = row['Ngay']||'';
+        const text = row['NoiDung']||'';
+        const key = date+'|'+text;
+        if(!date || !text || existKey.has(key)) return;
+        todos.push({ id:Date.now()+Math.floor(Math.random()*1000), date, text, done: row['HoanThanh']==='Yes' });
+        existKey.add(key);
+        newTodo++;
+      });
+      saveTodos(todos);
+    }
+
+    // ── 10 ĐIỀU BIẾT ƠN — merge theo ngày, chỉ điền vào ô còn trống ──
+    if(gratRes.success && gratRes.data){
+      const gratLog = getGratitudeLog();
+      gratRes.data.forEach(row=>{
+        const date = row['Ngay'];
+        if(!date) return;
+        const items = [];
+        for(let i=1;i<=10;i++) items.push(row['Dieu '+i]||'');
+        if(items.every(x=>!x)) return;
+        const idx = gratLog.findIndex(x=>x.date===date);
+        if(idx>=0){
+          const existing = gratLog[idx].items || Array(10).fill('');
+          for(let i=0;i<10;i++){ if(!existing[i] && items[i]) existing[i]=items[i]; }
+          gratLog[idx].items = existing;
+        } else {
+          gratLog.push({ date, items });
+          newGrat++;
+        }
+      });
+      saveGratitudeLog(gratLog);
+    }
+
+    renderDash();
+    renderKim();
+    renderTodo();
+    renderGratitude();
+
+    const parts = [];
+    if(newCheckin) parts.push(newCheckin+' ngày check-in');
+    if(newKim) parts.push(newKim+' hạt kim cương');
+    if(newTodo) parts.push(newTodo+' việc checklist');
+    if(newGrat) parts.push(newGrat+' ngày biết ơn');
+    toast(parts.length ? 'Đã đồng bộ thêm: '+parts.join(', ')+'! 🎉' : 'Dữ liệu đã đầy đủ, không có gì mới để tải thêm.', '#3D7A3D');
   } catch(e){
     toast('Không thể kết nối Sheets. Kiểm tra URL.','#D4453C');
   }
@@ -1832,6 +1984,117 @@ function closeCourses(){
 g('courses-modal').addEventListener('click', function(e){
   if(e.target===this) closeCourses();
 });
+
+// ── NHẬT KÝ ĐẦY ĐỦ ──
+function openJournal(){
+  g('journal-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  buildJournalMonthFilter();
+  renderJournalFull();
+}
+function closeJournal(){
+  g('journal-modal').style.display='none';
+  document.body.style.overflow='';
+}
+g('journal-modal').addEventListener('click', function(e){
+  if(e.target===this) closeJournal();
+});
+
+function buildJournalMonthFilter(){
+  const log = getLog();
+  const months = [...new Set(log.map(x=>x.date.slice(0,7)))].sort().reverse();
+  const sel = g('journal-month-filter');
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="all">📚 Tất cả các tháng</option>' + months.map(m=>{
+    const d = new Date(m+'-01T00:00:00');
+    const label = d.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+    return `<option value="${m}">${label.charAt(0).toUpperCase()+label.slice(1)}</option>`;
+  }).join('');
+  if(months.includes(prevVal) || prevVal==='all') sel.value = prevVal;
+}
+
+function renderJournalFull(){
+  const log = getLog();
+  const profile = getProfile();
+  const goals = (profile && profile.goals) ? profile.goals : [];
+  const gratLog = getGratitudeLog();
+  const todos = getTodos();
+  const filter = g('journal-month-filter').value || 'all';
+
+  // ── Tóm tắt tổng kết ──
+  const sorted = [...log].sort((a,b)=>a.date.localeCompare(b.date));
+  const summaryEl = g('journal-summary');
+  if(!sorted.length){
+    summaryEl.textContent = 'Chưa có dữ liệu nào — bắt đầu ghi B1-B2 hôm nay nhé!';
+  } else {
+    const firstDate = fmtD(sorted[0].date);
+    const lastDate = fmtD(sorted[sorted.length-1].date);
+    const gratDays = gratLog.filter(x=>x.items.some(i=>i)).length;
+    summaryEl.innerHTML = `🌱 ${log.length} ngày đã ghi nhật ký · từ ${firstDate} đến ${lastDate}<br>🙏 ${gratDays} ngày có ghi biết ơn`;
+  }
+
+  const filtered = filter==='all' ? sorted.slice().reverse() : sorted.filter(x=>x.date.startsWith(filter)).reverse();
+
+  const el = g('journal-body');
+  if(!filtered.length){
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🌱</div>Không có nhật ký nào trong khoảng này.</div>';
+    return;
+  }
+
+  let lastMonth = '';
+  let html = '';
+  filtered.forEach(x=>{
+    const mo = x.date.slice(0,7);
+    if(filter==='all' && mo!==lastMonth){
+      lastMonth = mo;
+      const d = new Date(mo+'-01T00:00:00');
+      const label = d.toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+      html += `<div style="font-size:14px;font-weight:800;color:var(--leaf-dark);margin:18px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--leaf-light)">${label.charAt(0).toUpperCase()+label.slice(1)}</div>`;
+    }
+
+    const activeGoals = (x.goals && x.goals.length) ? x.goals : (x.goal>=0 ? [x.goal] : []);
+    const goalText = activeGoals.map(i=>goals[i]).filter(Boolean).join(' · ');
+
+    const grat = gratLog.find(g2=>g2.date===x.date);
+    const gratItems = grat ? grat.items.filter(i=>i) : [];
+
+    const dayTodos = todos.filter(t=>t.date===x.date);
+    const todoDone = dayTodos.filter(t=>t.done).length;
+
+    const rows = [];
+    if(goalText) rows.push(['🎯 Mục tiêu', goalText]);
+    if(x.landBuddy) rows.push(['🤝 Người cùng mong muốn', x.landBuddy]);
+    if(x.landOn) rows.push(['🙏 Người có ơn', x.landOn]);
+    if(x.landNhieu) rows.push(['🌍 Người giúp nhiều người', x.landNhieu]);
+    if(x.landKhan) rows.push(['🚨 Trường hợp khẩn cấp', x.landKhan]);
+    if(x.tructiep) rows.push(['🌱 Gieo trực tiếp', x.tructiep]);
+    if(x.giantiep) rows.push(['🌿 Gieo gián tiếp', x.giantiep]);
+    if(x.day4buoc) rows.push(['📖 Đọc Ngày 4 Bước', x.day4buoc]);
+    if(x.b3) rows.push(['✅ Bước 3 — Hành động', x.b3]);
+    if(x.b4a) rows.push(['☕ 4a — Việc tốt hôm nay', x.b4a]);
+    if(x.b4b) rows.push(['☕ 4b — Ngưỡng mộ / Biết ơn quá khứ', x.b4b]);
+    if(x.b4c) rows.push(['☕ 4c — Tặng buddy', x.b4c]);
+    if(x.b4d) rows.push(['☕ 4d — Biết ơn 4 bước', x.b4d]);
+
+    html += `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:14.5px;font-weight:800;color:var(--ink)">${fmtD(x.date)}</div>
+        ${x.synced?'<span class="tag" style="background:var(--leaf-light);color:var(--leaf-dark)">✓ Sheets</span>':''}
+      </div>
+      ${rows.map(([label,val])=>`<div style="margin-bottom:7px">
+        <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:1px">${label}</div>
+        <div style="font-size:13.5px;color:var(--ink);line-height:1.5">${val}</div>
+      </div>`).join('')}
+      ${gratItems.length?`<div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--border-soft)">
+        <div style="font-size:11px;font-weight:700;color:#9C7A0F;margin-bottom:4px">🙏 10 Điều Biết Ơn</div>
+        ${gratItems.map(i=>`<div style="font-size:13px;color:var(--ink);line-height:1.5">• ${i}</div>`).join('')}
+      </div>`:''}
+      ${dayTodos.length?`<div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--ink-soft)">✅ Checklist: ${todoDone}/${dayTodos.length} việc hoàn thành</div>`:''}
+      ${!rows.length && !gratItems.length && !dayTodos.length ? '<div style="font-size:13px;color:var(--ink-muted);font-style:italic">Chưa có nội dung chi tiết cho ngày này.</div>' : ''}
+    </div>`;
+  });
+  el.innerHTML = html;
+}
 
 async function loadCourses(){
   const url = getAdminUrl();
