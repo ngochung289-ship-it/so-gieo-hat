@@ -1597,7 +1597,7 @@ async function syncKim(entry){
   if(!url) return false;
   try {
     const profile = getProfile();
-    const payload = { type:'kim', user: profile?.name||'?', ...entry };
+    const payload = { type:'kim', user: profile?.name||'?', date:entry.date, kimType:entry.type, land:entry.land, amt:entry.amt, detail:entry.detail, mt:(entry.goal>=0?entry.goal:''), id:entry.id };
     const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
     const json = await res.json();
     return json.success;
@@ -1873,7 +1873,8 @@ async function pushAllToSheets(){
   let okKim = 0;
   for(let i=0;i<kims.length;i++){
     btn.textContent = `⏳ Đang đẩy Kim Cương ${i+1}/${kims.length}...`;
-    const ok = await postOne({ type:'kim', user:userName, ...kims[i] });
+    const k = kims[i];
+    const ok = await postOne({ type:'kim', user:userName, date:k.date, kimType:k.type, land:k.land, amt:k.amt, detail:k.detail, mt:(k.goal>=0?k.goal:''), id:k.id });
     if(ok) okKim++;
   }
 
@@ -1882,7 +1883,8 @@ async function pushAllToSheets(){
   let okTc = 0;
   for(let i=0;i<tcList.length;i++){
     btn.textContent = `⏳ Đang đẩy Tài chính ${i+1}/${tcList.length}...`;
-    const ok = await postOne({ type:'tc', user:userName, ...tcList[i] });
+    const t = tcList[i];
+    const ok = await postOne({ type:'tc', user:userName, date:t.date, tcType:t.type, moTa:t.moTa, soTien:t.soTien, manhDat:t.manhDat });
     if(ok) okTc++;
   }
 
@@ -2435,7 +2437,7 @@ async function saveTc(){
   if(url){
     try {
       const profile = getProfile();
-      const payload = { type:'tc', user: profile?.name||'?', ...entry };
+      const payload = { type:'tc', user: profile?.name||'?', date:entry.date, tcType:entry.type, moTa:entry.moTa, soTien:entry.soTien, manhDat:entry.manhDat };
       const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
       const json = await res.json();
       ok = json.success;
