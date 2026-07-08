@@ -1913,7 +1913,16 @@ async function pushAllToSheets(){
   btn.disabled = false;
   btn.textContent = '⬆️ Đẩy toàn bộ dữ liệu local lên Sheets';
 
-  toast(`Đã đẩy xong: ${okCheckin}/${log.length} check-in, ${okKim}/${kims.length} Kim Cương, ${okTc}/${tcList.length} Tài chính, ${okTodo}/${todoDates.length} ngày Checklist, ${okGrat}/${gratLog.length} Biết ơn! 🎉`, '#3D7A3D');
+  const summary = `ĐÃ ĐẨY XONG:\n\n`
+    + `✅ Check-in: ${okCheckin}/${log.length}\n`
+    + `✅ Kim Cương: ${okKim}/${kims.length}\n`
+    + `✅ Tài chính: ${okTc}/${tcList.length}\n`
+    + `✅ Checklist: ${okTodo}/${todoDates.length} ngày\n`
+    + `✅ Biết ơn: ${okGrat}/${gratLog.length}\n\n`
+    + (okCheckin<log.length || okKim<kims.length || okTc<tcList.length || okTodo<todoDates.length || okGrat<gratLog.length
+        ? '⚠️ Có vài mục chưa đẩy được (mạng chập chờn). Bấm nút này lần nữa để thử lại — không lo bị trùng.'
+        : '🎉 Tất cả đã lên Sheets thành công!');
+  alert(summary);
 }
 
 // ── DASHBOARD ──
