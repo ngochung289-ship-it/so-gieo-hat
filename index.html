@@ -896,6 +896,7 @@ input:checked+.sl:before{transform:translateX(18px)}
       </div>
       <button onclick="loadFromSheets()" style="font-size:12.5px;padding:7px 13px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600">↻ Tải Sheets</button>
     </div>
+    <button id="btn-push-all" onclick="pushAllToSheets()" style="width:100%;margin-top:10px;font-size:13px;padding:10px;border:1.5px solid var(--gold);border-radius:10px;background:var(--gold-light);color:#9C7A0F;cursor:pointer;font-family:inherit;font-weight:700">⬆️ Đẩy toàn bộ dữ liệu local lên Sheets</button>
   </div>
 
   <div class="stat-grid">
@@ -1170,7 +1171,13 @@ function g(id){ return document.getElementById(id); }
 function today(){ return new Date().toISOString().split('T')[0]; }
 function fmtD(s){
   if(!s) return '';
-  const d = new Date(s+'T00:00:00');
+  let d;
+  if(typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)){
+    d = new Date(s+'T00:00:00');
+  } else {
+    d = new Date(s); // dự phòng: chuỗi ISO đầy đủ hoặc định dạng khác từ Sheets
+  }
+  if(isNaN(d.getTime())) return String(s).slice(0,10); // vẫn hiện gì đó thay vì "Invalid Date"
   return d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit'});
 }
 function fmtMoney(n){ return n ? parseInt(n).toLocaleString('vi-VN')+'đ' : ''; }
@@ -1654,24 +1661,52 @@ async function syncEntry(entry){
 }
 
 async function loadFromSheets(){
+  // Chuẩn hoá giá trị ngày từ Sheets về đúng "yyyy-MM-dd" dù Apps Script
+  // cũ (chưa cập nhật) trả về chuỗi ISO đầy đủ do Sheets tự đổi thành Date
+  function normDate(v){
+    if(!v) return '';
+    const s = String(v);
+    const m = s.match(/^\d{4}-\d{2}-\d{2}/);
+    return m ? m[0] : s;
+  }
   const url = getUrl();
   if(!url){ toast('Chưa kết nối Sheets. Vào Hồ sơ để cài.','#D4453C'); return; }
+
+  // Tự dọn dẹp: chuẩn hoá lại "date" của dữ liệu local đã lỡ bị lưu sai
+  // định dạng (VD: "Invalid Date" do lần tải trước khi sửa lỗi Sheets)
+  function cleanDates(arr){
+    let fixedCount = 0;
+    arr.forEach(x=>{
+      if(x.date && !/^\d{4}-\d{2}-\d{2}$/.test(x.date)){
+        const cleanedVal = normDate(x.date);
+        if(cleanedVal) { x.date = cleanedVal; fixedCount++; }
+      }
+    });
+    return fixedCount;
+  }
+  let cleaned = 0;
+  const logArr = getLog();             cleaned += cleanDates(logArr);             saveLog(logArr);
+  const kimArr = getKim();             cleaned += cleanDates(kimArr);             saveKimData(kimArr);
+  const todoArr = getTodos();          cleaned += cleanDates(todoArr);            saveTodos(todoArr);
+  const gratArr = getGratitudeLog();   cleaned += cleanDates(gratArr);            saveGratitudeLog(gratArr);
+  const tcArr = getTc();               cleaned += cleanDates(tcArr);              saveTcData(tcArr);
   toast('Đang tải dữ liệu từ Sheets...','#D4A017');
   try {
-    const [checkinRes, kimRes, todoRes, gratRes] = await Promise.all([
+    const [checkinRes, kimRes, todoRes, gratRes, tcRes] = await Promise.all([
       fetch(url+'?type=checkin').then(r=>r.json()).catch(()=>({success:false})),
       fetch(url+'?type=kim').then(r=>r.json()).catch(()=>({success:false})),
       fetch(url+'?type=todo').then(r=>r.json()).catch(()=>({success:false})),
-      fetch(url+'?type=gratitude').then(r=>r.json()).catch(()=>({success:false}))
+      fetch(url+'?type=gratitude').then(r=>r.json()).catch(()=>({success:false})),
+      fetch(url+'?type=tc').then(r=>r.json()).catch(()=>({success:false}))
     ]);
 
-    let newCheckin = 0, newKim = 0, newTodo = 0, newGrat = 0;
+    let newCheckin = 0, newKim = 0, newTodo = 0, newGrat = 0, newTc = 0;
 
     // ── CHECK-IN (B1-B4) — merge theo ngày, chỉ điền vào field còn trống ──
     if(checkinRes.success && checkinRes.data){
       const log = getLog();
       checkinRes.data.forEach(row=>{
-        const date = row['Ngay'];
+        const date = normDate(row['Ngay']);
         if(!date) return;
         const mapped = {
           landBuddy: row['Nguoi cung mong muon']||'',
@@ -1709,7 +1744,7 @@ async function loadFromSheets(){
       const kims = getKim();
       const existKey = new Set(kims.map(k=>k.date+'|'+k.land+'|'+k.amt));
       kimRes.data.forEach(row=>{
-        const date = row['Ngay']||'';
+        const date = normDate(row['Ngay']);
         const land = row['Manh dat mau mo']||'';
         const amt = row['So tien (VND)']||'';
         const key = date+'|'+land+'|'+amt;
@@ -1732,7 +1767,7 @@ async function loadFromSheets(){
       const todos = getTodos();
       const existKey = new Set(todos.map(t=>t.date+'|'+t.text));
       todoRes.data.forEach(row=>{
-        const date = row['Ngay']||'';
+        const date = normDate(row['Ngay']);
         const text = row['NoiDung']||'';
         const key = date+'|'+text;
         if(!date || !text || existKey.has(key)) return;
@@ -1747,7 +1782,7 @@ async function loadFromSheets(){
     if(gratRes.success && gratRes.data){
       const gratLog = getGratitudeLog();
       gratRes.data.forEach(row=>{
-        const date = row['Ngay'];
+        const date = normDate(row['Ngay']);
         if(!date) return;
         const items = [];
         for(let i=1;i<=10;i++) items.push(row['Dieu '+i]||'');
@@ -1765,20 +1800,120 @@ async function loadFromSheets(){
       saveGratitudeLog(gratLog);
     }
 
+    // ── TÀI CHÍNH — thêm mới nếu chưa có (so theo ngày + loại + mô tả + số tiền) ──
+    if(tcRes.success && tcRes.data){
+      const tcList = getTc();
+      const existKey = new Set(tcList.map(t=>t.date+'|'+t.type+'|'+t.moTa+'|'+t.soTien));
+      tcRes.data.forEach(row=>{
+        const date = normDate(row['Ngay']);
+        const type = row['Loai']||'';
+        const moTa = row['MoTa']||'';
+        const soTien = row['SoTien']||0;
+        const key = date+'|'+type+'|'+moTa+'|'+soTien;
+        if(!date || !moTa || existKey.has(key)) return;
+        tcList.push({ id:Date.now()+Math.floor(Math.random()*1000), date, type, moTa, soTien:parseInt(soTien)||0, manhDat: row['ManhDat']||'' });
+        existKey.add(key);
+        newTc++;
+      });
+      saveTcData(tcList);
+    }
+
     renderDash();
     renderKim();
     renderTodo();
     renderGratitude();
+    renderTc();
 
     const parts = [];
     if(newCheckin) parts.push(newCheckin+' ngày check-in');
     if(newKim) parts.push(newKim+' hạt kim cương');
     if(newTodo) parts.push(newTodo+' việc checklist');
     if(newGrat) parts.push(newGrat+' ngày biết ơn');
+    if(newTc) parts.push(newTc+' khoản tài chính');
+    if(cleaned) parts.push('sửa '+cleaned+' ngày bị lỗi định dạng');
     toast(parts.length ? 'Đã đồng bộ thêm: '+parts.join(', ')+'! 🎉' : 'Dữ liệu đã đầy đủ, không có gì mới để tải thêm.', '#3D7A3D');
   } catch(e){
     toast('Không thể kết nối Sheets. Kiểm tra URL.','#D4453C');
   }
+}
+
+// ── ĐẨY TOÀN BỘ DỮ LIỆU LOCAL LÊN SHEETS ──
+// Dùng khi có dữ liệu cũ được nhập TRƯỚC lúc tính năng đồng bộ ra đời
+// (hoặc lúc kết nối Sheets bị lỗi) — quét lại tất cả và gửi lên 1 lần.
+// An toàn để bấm nhiều lần: Apps Script đã chống ghi trùng cho Kim Cương & Tài chính,
+// còn Check-in/Biết ơn dùng merge-theo-ngày, Checklist ghi đè theo ngày — không lo trùng.
+async function pushAllToSheets(){
+  const url = getUrl();
+  if(!url){ toast('Chưa kết nối Sheets. Vào Hồ sơ để cài.','#D4453C'); return; }
+  const btn = g('btn-push-all');
+  btn.disabled = true;
+
+  async function postOne(payload){
+    try {
+      const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+      const json = await res.json();
+      return json.success;
+    } catch(e){ return false; }
+  }
+
+  const profile = getProfile();
+  const userName = profile?.name||'?';
+
+  // 1) Check-in (B1-B4)
+  const log = getLog();
+  let okCheckin = 0;
+  for(let i=0;i<log.length;i++){
+    btn.textContent = `⏳ Đang đẩy check-in ${i+1}/${log.length}...`;
+    const ok = await postOne({ type:'checkin', user:userName, ...log[i] });
+    if(ok) okCheckin++;
+  }
+
+  // 2) Kim Cương
+  const kims = getKim();
+  let okKim = 0;
+  for(let i=0;i<kims.length;i++){
+    btn.textContent = `⏳ Đang đẩy Kim Cương ${i+1}/${kims.length}...`;
+    const ok = await postOne({ type:'kim', user:userName, ...kims[i] });
+    if(ok) okKim++;
+  }
+
+  // 3) Tài chính
+  const tcList = getTc();
+  let okTc = 0;
+  for(let i=0;i<tcList.length;i++){
+    btn.textContent = `⏳ Đang đẩy Tài chính ${i+1}/${tcList.length}...`;
+    const ok = await postOne({ type:'tc', user:userName, ...tcList[i] });
+    if(ok) okTc++;
+  }
+
+  // 4) Checklist — gộp theo từng ngày, mỗi ngày gửi 1 lần (Apps Script ghi đè theo ngày)
+  const todos = getTodos();
+  const todoDates = [...new Set(todos.map(t=>t.date))];
+  let okTodo = 0;
+  for(let i=0;i<todoDates.length;i++){
+    btn.textContent = `⏳ Đang đẩy Checklist ${i+1}/${todoDates.length} ngày...`;
+    const items = todos.filter(t=>t.date===todoDates[i]);
+    const ok = await postOne({ type:'todo', user:userName, date:todoDates[i], items });
+    if(ok) okTodo++;
+  }
+
+  // 5) 10 Điều Biết Ơn
+  const gratLog = getGratitudeLog();
+  let okGrat = 0;
+  for(let i=0;i<gratLog.length;i++){
+    btn.textContent = `⏳ Đang đẩy Biết ơn ${i+1}/${gratLog.length}...`;
+    const ok = await postOne({ type:'gratitude', user:userName, ...gratLog[i] });
+    if(ok) okGrat++;
+  }
+
+  // 6) Hồ sơ + Mục tiêu thu nhập
+  btn.textContent = '⏳ Đang đẩy hồ sơ...';
+  await syncSettings();
+
+  btn.disabled = false;
+  btn.textContent = '⬆️ Đẩy toàn bộ dữ liệu local lên Sheets';
+
+  toast(`Đã đẩy xong: ${okCheckin}/${log.length} check-in, ${okKim}/${kims.length} Kim Cương, ${okTc}/${tcList.length} Tài chính, ${okTodo}/${todoDates.length} ngày Checklist, ${okGrat}/${gratLog.length} Biết ơn! 🎉`, '#3D7A3D');
 }
 
 // ── DASHBOARD ──
@@ -1924,7 +2059,7 @@ function renumberGoals(){
   rows.forEach((row,i)=>{ row.querySelector('.goal-num').textContent = i+1; });
 }
 
-function saveProfile(){
+async function saveProfile(){
   const p = getProfile() || {createdAt: today()};
   const name = g('me-name').value.trim();
   if(!name){ toast('Vui lòng nhập tên!','#D4453C'); return; }
@@ -1934,7 +2069,21 @@ function saveProfile(){
     .map(inp => inp.value.trim()).filter(v => v.length > 0);
   localStorage.setItem(K.profile, JSON.stringify(p));
   updateProfileBar();
-  toast('Đã lưu hồ sơ! 🌱','#3D7A3D');
+  const ok = await syncSettings();
+  ok ? toast('Đã lưu & đồng bộ hồ sơ! 🌱','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+}
+
+async function syncSettings(){
+  const url = getUrl();
+  if(!url) return false;
+  try {
+    const p = getProfile() || {};
+    const payload = { type:'settings', name:p.name||'', why:p.why||'', goals:p.goals||[], tcGoal:getTcGoal() };
+    const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    const json = await res.json();
+    return json.success;
+  } catch(err){ return false; }
 }
 
 function updateUrl(){
@@ -2192,12 +2341,14 @@ function getTc(){ try{ return JSON.parse(localStorage.getItem(K.tc))||[]; }catch
 function saveTcData(d){ localStorage.setItem(K.tc, JSON.stringify(d)); }
 function getTcGoal(){ return parseInt(localStorage.getItem(K.tcGoal))||0; }
 function saveTcGoalData(n){ localStorage.setItem(K.tcGoal, n); }
-function saveTcGoal(){
+async function saveTcGoal(){
   const val = parseInt(g('tc-goal-input').value)||0;
   if(!val){ toast('Vui lòng nhập mục tiêu thu nhập!','#D4453C'); return; }
   saveTcGoalData(val);
-  toast('Đã lưu mục tiêu thu nhập tháng! 🎯','#3D7A3D');
   renderTc();
+  const ok = await syncSettings();
+  ok ? toast('Đã lưu & đồng bộ mục tiêu thu nhập! 🎯','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 }
 // Trả về [thứ2, chủ nhật] của tuần chứa ngày truyền vào (mặc định hôm nay)
 function weekRange(d){
@@ -2247,7 +2398,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-function saveTc(){
+async function saveTc(){
   const moTa = g('tc-mo-ta').value.trim();
   const soTien = parseInt(g('tc-so-tien').value)||0;
   if(!moTa){ toast('Vui lòng nhập mô tả!','#D4453C'); return; }
@@ -2266,7 +2417,26 @@ function saveTc(){
   g('tc-manh-dat-khac-wrap').style.display='none';
   g('tc-kim-goi-y').style.display='none';
   renderTc();
-  toast('Đã ghi lại! 💰','#3D7A3D');
+
+  const btn = g('btn-tc-save');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang lưu...';
+  const url = getUrl();
+  let ok = false;
+  if(url){
+    try {
+      const profile = getProfile();
+      const payload = { type:'tc', user: profile?.name||'?', ...entry };
+      const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+      const json = await res.json();
+      ok = json.success;
+    } catch(err){ ok = false; }
+  }
+  btn.disabled = false;
+  btn.innerHTML = '💾 Ghi lại';
+  ok ? toast('Đã lưu & đồng bộ Sheets! 💰','#3D7A3D')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
+
   if(currentTcType==='gieohat' && soTien>=500000){
     pendingKimEntry = { id:Date.now()+1, type:'Hào phóng', date:entry.date, land:manhDat||moTa, amt:soTien, detail:moTa, goal:-1 };
     g('kim-suggest-msg').textContent = fmtMoney(soTien)+' gieo vào "'+(manhDat||moTa)+'" — hạt giống xứng đáng được lưu vào Sổ Kim Cương! 🌱';
@@ -2335,17 +2505,20 @@ function renderTc(){
 }
 
 function dismissKimSuggest(){ g('kim-suggest-popup').style.display='none'; pendingKimEntry=null; }
-function confirmKimSuggest(){
+async function confirmKimSuggest(){
   if(!pendingKimEntry) return;
+  const entry = pendingKimEntry;
   const kims = getKim();
-  kims.unshift(pendingKimEntry);
+  kims.unshift(entry);
   saveKimData(kims);
   g('kim-suggest-popup').style.display='none';
   pendingKimEntry=null;
-  toast('Đã lưu vào Sổ Kim Cương! 💎','#D4A017');
+  const ok = await syncKim(entry);
+  ok ? toast('Đã lưu & đồng bộ Sổ Kim Cương! 💎','#D4A017')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 }
 
-function saveNguongMoKim(){
+async function saveNguongMoKim(){
   const ten = g('b4b-nguong-ten').value.trim();
   const amt = g('b4b-nguong-amt').value;
   const moTa = g('b4b-nguong-mo-ta').value.trim();
@@ -2355,7 +2528,9 @@ function saveNguongMoKim(){
   kims.unshift(entry);
   saveKimData(kims);
   g('b4b-nguong-ten').value=''; g('b4b-nguong-amt').value=''; g('b4b-nguong-mo-ta').value='';
-  toast('Đã lưu hạt ngưỡng mộ vào Kim Cương! 💎✨','#D4A017');
+  const ok = await syncKim(entry);
+  ok ? toast('Đã lưu & đồng bộ hạt ngưỡng mộ! 💎✨','#D4A017')
+     : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 }
 
 function toast(msg, color='#3D7A3D'){
