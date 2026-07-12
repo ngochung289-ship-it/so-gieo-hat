@@ -288,8 +288,10 @@ input:checked+.sl:before{transform:translateX(18px)}
           <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.7">
           <b>Tối:</b> mở tab <b>B1-B2</b> → chọn mục tiêu → ghi kế hoạch gieo hạt cho ngày mai.<br>
           <b>Cuối ngày hôm sau:</b> mở tab <b>B3-B4</b> → ghi lại việc đã làm được + trả lời 4 câu hỏi Thiền cafe.<br>
+          <b>Mỗi ngày:</b> mở tab <b>✅ To Do</b> để ghi checklist việc cần làm + 10 điều biết ơn.<br>
           <b>Khi gieo hạt lớn/đáng nhớ:</b> mở tab <b>💎 Kim Cương</b> để ghi lại.<br>
-          <b>Xem tiến độ:</b> mở tab <b>📊 Tiến Độ</b> để xem lại hành trình của mình.<br>
+          <b>Thu chi hàng ngày:</b> mở tab <b>💰 Tài chính</b> để ghi Chi tiêu / Gieo hạt / Thu nhập / Phân bổ hũ.<br>
+          <b>Xem tiến độ:</b> mở tab <b>📊 Tiến Độ</b> để xem lại hành trình, sửa ngày cũ hoặc ghi bù ngày bị bỏ lỡ.<br>
           Sau mỗi lần điền, nhớ bấm nút <b>Lưu</b> ở cuối trang để không mất dữ liệu.
           </div>
         </div>
@@ -348,7 +350,35 @@ input:checked+.sl:before{transform:translateX(18px)}
 
         <div style="background:var(--gold-light);border-radius:12px;padding:13px">
           <div style="font-size:15px;font-weight:700;color:#9C7A0F;margin-bottom:6px">💎 Sổ Kim Cương là gì?</div>
-          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">Nơi lưu lại những hạt giống đặc biệt, đáng nhớ — những lần bạn gieo hào phóng lớn, đóng góp có ý nghĩa, hoặc hành động xuất phát từ tình thương sâu sắc. Xem lại để nuôi dưỡng niềm tin vào hành trình của mình.</div>
+          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">Nơi lưu lại những hạt giống đặc biệt, đáng nhớ — những lần bạn gieo hào phóng lớn, đóng góp có ý nghĩa, hoặc hành động xuất phát từ tình thương sâu sắc. Có 2 mục riêng: hạt mình tự gieo, và hạt ngưỡng mộ từ người khác. Mỗi hạt đều sửa/xoá được.</div>
+        </div>
+
+        <div style="background:var(--sprout-light);border-radius:12px;padding:13px">
+          <div style="font-size:15px;font-weight:700;color:var(--leaf-dark);margin-bottom:6px">✅ To Do có gì?</div>
+          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">Gồm 2 phần, đều lưu theo từng ngày riêng biệt:<br>
+          <b>Checklist</b> — việc cần làm hôm nay, tích xong hoặc xoá được.<br>
+          <b>10 Điều Biết Ơn</b> — viết ngắn gọn mỗi điều, bấm Lưu để cập nhật.
+          </div>
+        </div>
+
+        <div style="background:var(--gold-light);border-radius:12px;padding:13px">
+          <div style="font-size:15px;font-weight:700;color:#9C7A0F;margin-bottom:6px">💰 Tài chính có mấy loại giao dịch?</div>
+          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">
+          <b>🛒 Chi tiêu</b> — khoản chi sinh hoạt.<br>
+          <b>🌱 Gieo hạt</b> — tiền gieo vào quỹ DCI.<br>
+          <b>💵 Thu nhập</b> — tổng thu nhập nhận được.<br>
+          <b>🏺 Phân bổ hũ</b> — trích riêng tiền đã có vào từng hũ (Tiết kiệm, Báo hiếu, Cho con...), KHÔNG tính là thu nhập mới.<br>
+          "Số dư còn lại" = Thu nhập − Chi tiêu − Gieo hạt − Đã phân bổ hũ.
+          </div>
+        </div>
+
+        <div style="background:var(--bark-light);border-radius:12px;padding:13px">
+          <div style="font-size:15px;font-weight:700;color:var(--bark);margin-bottom:6px">✏️ Ghi sai hoặc quên ghi thì sửa thế nào?</div>
+          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">
+          <b>Ngày đã có dữ liệu:</b> vào tab Tiến độ → "Xem toàn bộ nhật ký" → bấm ✏️ Sửa trên ngày cần sửa.<br>
+          <b>Ngày bị bỏ lỡ hoàn toàn:</b> vào tab B1-B2/B3-B4 → bấm nút 📅 Ghi bù → chọn ngày → ghi rồi Lưu như bình thường.<br>
+          <b>Kim Cương / Tài chính:</b> mỗi khoản trong danh sách có sẵn nút ✏️ Sửa và 🗑️ Xoá.
+          </div>
         </div>
 
         <div style="background:var(--fruit-light);border-radius:12px;padding:13px">
@@ -366,6 +396,15 @@ input:checked+.sl:before{transform:translateX(18px)}
             2. Làm theo 3 bước hướng dẫn để tạo Apps Script<br>
             3. Dán URL vào ô → bấm <b>Cập nhật URL</b> → bấm <b>Kiểm tra</b><br>
             Sau đó mỗi lần Lưu sẽ tự đồng bộ lên Sheets.
+          </div>
+        </div>
+
+        <div style="background:var(--sprout-light);border-radius:12px;padding:13px">
+          <div style="font-size:15px;font-weight:700;color:var(--leaf-dark);margin-bottom:6px">↻ "Tải Sheets" khác gì "⬆️ Đẩy toàn bộ lên Sheets"?</div>
+          <div style="font-size:13.5px;color:var(--ink-soft);line-height:1.6">
+            Cả 2 nút đều ở tab Tiến độ:<br>
+            <b>↻ Tải Sheets</b> — kéo dữ liệu TỪ Sheets VỀ app (dùng khi đổi máy mới, hoặc app bị mất dữ liệu cũ).<br>
+            <b>⬆️ Đẩy toàn bộ</b> — gửi TẤT CẢ dữ liệu trong máy LÊN Sheets (dùng khi có dữ liệu cũ chưa từng đồng bộ được). An toàn bấm nhiều lần, không lo trùng dữ liệu.
           </div>
         </div>
 
@@ -1260,7 +1299,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
