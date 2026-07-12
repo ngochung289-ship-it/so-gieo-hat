@@ -644,8 +644,10 @@ input:checked+.sl:before{transform:translateX(18px)}
         <div class="page-title">📝 Lên kế hoạch</div>
         <div class="page-sub">Lý tưởng thực hiện tối hôm trước</div>
       </div>
-      <button onclick="g('date-picker-plan').showPicker?g('date-picker-plan').showPicker():g('date-picker-plan').click()" style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;flex-shrink:0">📅 Ghi bù</button>
-      <input type="date" id="date-picker-plan" style="position:absolute;opacity:0;width:0;height:0" onchange="pickEditDate('plan', this.value)">
+      <div style="position:relative;flex-shrink:0">
+        <button style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap">📅 Ghi bù</button>
+        <input type="date" id="date-picker-plan" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none" onchange="pickEditDate('plan', this.value)">
+      </div>
     </div>
   </div>
 
@@ -790,8 +792,10 @@ input:checked+.sl:before{transform:translateX(18px)}
         <div class="page-title">☀️ Thực hiện & Thiền</div>
         <div class="page-sub">Ghi lại vào cuối ngày hôm sau</div>
       </div>
-      <button onclick="g('date-picker-do').showPicker?g('date-picker-do').showPicker():g('date-picker-do').click()" style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;flex-shrink:0">📅 Ghi bù</button>
-      <input type="date" id="date-picker-do" style="position:absolute;opacity:0;width:0;height:0" onchange="pickEditDate('do', this.value)">
+      <div style="position:relative;flex-shrink:0">
+        <button style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap">📅 Ghi bù</button>
+        <input type="date" id="date-picker-do" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none" onchange="pickEditDate('do', this.value)">
+      </div>
     </div>
   </div>
 
@@ -1299,7 +1303,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
