@@ -1112,7 +1112,7 @@ input:checked+.sl:before{transform:translateX(18px)}
   <!-- Số dư còn lại -->
   <div class="stat" id="tc-so-du-card" style="border-left:3px solid var(--leaf-dark);margin-bottom:9px;background:var(--leaf-light)">
     <div class="stat-num" id="tc-so-du" style="font-size:24px;color:var(--leaf-dark)">0đ</div>
-    <div class="stat-lbl" style="color:var(--leaf-dark);font-weight:700">💰 Số dư còn lại tháng này (Thu nhập − Chi tiêu)</div>
+    <div class="stat-lbl" style="color:var(--leaf-dark);font-weight:700">💰 Số dư còn lại tháng này (Thu nhập − Chi tiêu − Gieo hạt − Đã chia hũ)</div>
   </div>
 
   <!-- Tổng quan tháng -->
@@ -1143,10 +1143,11 @@ input:checked+.sl:before{transform:translateX(18px)}
     </div>
 
     <!-- Loại -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
       <button id="tc-type-btn-ct" onclick="setTcType('chitieu')" style="padding:10px 4px;border:2px solid var(--bloom);border-radius:10px;background:var(--bloom);color:white;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">🛒 Chi tiêu</button>
       <button id="tc-type-btn-gh" onclick="setTcType('gieohat')" style="padding:10px 4px;border:2px solid var(--border);border-radius:10px;background:none;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">🌱 Gieo hạt</button>
       <button id="tc-type-btn-tn" onclick="setTcType('thunhap')" style="padding:10px 4px;border:2px solid var(--border);border-radius:10px;background:none;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">💵 Thu nhập</button>
+      <button id="tc-type-btn-pb" onclick="setTcType('phanbo')" style="padding:10px 4px;border:2px solid var(--border);border-radius:10px;background:none;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">🏺 Phân bổ hũ</button>
     </div>
 
     <div class="field">
@@ -1179,11 +1180,12 @@ input:checked+.sl:before{transform:translateX(18px)}
       </div>
     </div>
 
+    <!-- Phân bổ hũ: bắt buộc chọn hũ -->
     <div id="tc-thunhap-extra" style="display:none">
       <div class="field">
-        <div class="field-label">Chia vào hũ (không bắt buộc)</div>
+        <div class="field-label">Chia vào hũ nào</div>
         <select id="tc-hu">
-          <option value="">— Không chia hũ —</option>
+          <option value="">— Chọn hũ hoặc nhập tay —</option>
           <option>🙏 Quỹ Báo Hiếu</option>
           <option>💰 Quỹ Tiết Kiệm</option>
           <option>👶 Quỹ Cho Con</option>
@@ -1246,7 +1248,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
@@ -2547,7 +2549,8 @@ function setTcType(type){
   const map = {
     chitieu: { btn:'tc-type-btn-ct', color:'var(--bloom)' },
     gieohat: { btn:'tc-type-btn-gh', color:'var(--leaf)' },
-    thunhap: { btn:'tc-type-btn-tn', color:'#C79A1E' }
+    thunhap: { btn:'tc-type-btn-tn', color:'#C79A1E' },
+    phanbo: { btn:'tc-type-btn-pb', color:'#9C7A0F' }
   };
   Object.keys(map).forEach(t=>{
     const isActive = t===type;
@@ -2557,7 +2560,7 @@ function setTcType(type){
     btn.style.borderColor = isActive ? map[t].color : 'var(--border)';
   });
   g('tc-gieohat-extra').style.display = type==='gieohat' ? 'block' : 'none';
-  g('tc-thunhap-extra').style.display = type==='thunhap' ? 'block' : 'none';
+  g('tc-thunhap-extra').style.display = type==='phanbo' ? 'block' : 'none';
   checkKhung();
 }
 
@@ -2597,7 +2600,7 @@ function editTc(id){
     const opt = Array.from(g('tc-quy').options).find(o=>o.value===t.manhDat);
     if(opt){ g('tc-quy').value = t.manhDat; g('tc-manh-dat-khac-wrap').style.display='none'; }
     else { g('tc-quy').value = 'khac'; g('tc-manh-dat-khac').value = t.manhDat; g('tc-manh-dat-khac-wrap').style.display='block'; }
-  } else if(t.type==='thunhap' && t.manhDat){
+  } else if(t.type==='phanbo' && t.manhDat){
     const opt = Array.from(g('tc-hu').options).find(o=>o.value===t.manhDat);
     if(opt){ g('tc-hu').value = t.manhDat; g('tc-hu-khac-wrap').style.display='none'; }
     else { g('tc-hu').value = 'khac'; g('tc-hu-khac').value = t.manhDat; g('tc-hu-khac-wrap').style.display='block'; }
@@ -2632,18 +2635,22 @@ async function deleteTc(id){
 async function saveTc(){
   const moTa = g('tc-mo-ta').value.trim();
   const soTien = parseInt(g('tc-so-tien').value)||0;
-  if(!moTa){ toast('Vui lòng nhập mô tả!','#D4453C'); return; }
   if(!soTien){ toast('Vui lòng nhập số tiền!','#D4453C'); return; }
   let manhDat = '';
   if(currentTcType==='gieohat'){
     const quyVal = g('tc-quy').value;
     manhDat = quyVal==='khac' ? g('tc-manh-dat-khac').value.trim() : quyVal;
-  } else if(currentTcType==='thunhap'){
+    if(!moTa){ toast('Vui lòng nhập mô tả!','#D4453C'); return; }
+  } else if(currentTcType==='phanbo'){
     const huVal = g('tc-hu').value;
     manhDat = huVal==='khac' ? g('tc-hu-khac').value.trim() : huVal;
+    if(!manhDat){ toast('Vui lòng chọn hũ muốn chia vào!','#D4453C'); return; }
+  } else {
+    if(!moTa){ toast('Vui lòng nhập mô tả!','#D4453C'); return; }
   }
+  const finalMoTa = moTa || (currentTcType==='phanbo' ? 'Chia vào '+manhDat : '');
   const isEdit = !!editingTcId;
-  const entry = { id: isEdit?editingTcId:Date.now(), date:g('tc-date').value||today(), type:currentTcType, moTa, soTien, manhDat };
+  const entry = { id: isEdit?editingTcId:Date.now(), date:g('tc-date').value||today(), type:currentTcType, moTa:finalMoTa, soTien, manhDat };
   const list = getTc();
   if(isEdit){
     const idx = list.findIndex(x=>x.id===editingTcId);
@@ -2691,8 +2698,9 @@ function renderTc(){
   g('tc-chi-tieu').textContent = fmtMoney(totalCT)||'0đ';
   g('tc-gieo-hat').textContent = fmtMoney(totalGH)||'0đ';
 
-  // Số dư còn lại = Thu nhập - Chi tiêu (trong tháng)
-  const soDu = totalTN - totalCT;
+  // Số dư còn lại = Thu nhập - Chi tiêu - Gieo hạt - Tổng đã phân bổ hũ (trong tháng)
+  const totalPB = monthList.filter(x=>x.type==='phanbo').reduce((s,x)=>s+x.soTien,0);
+  const soDu = totalTN - totalCT - totalGH - totalPB;
   const soDuEl = g('tc-so-du');
   soDuEl.textContent = (soDu<0?'-':'') + fmtMoney(Math.abs(soDu));
   const soDuCard = g('tc-so-du-card');
@@ -2704,9 +2712,9 @@ function renderTc(){
     soDuEl.style.color = 'var(--leaf-dark)';
   }
 
-  // Các hũ tháng này (chỉ tính khoản Thu nhập có chia hũ)
+  // Các hũ tháng này (chỉ tính khoản Phân bổ hũ)
   const huMap = {};
-  monthList.filter(x=>x.type==='thunhap' && x.manhDat).forEach(x=>{
+  monthList.filter(x=>x.type==='phanbo' && x.manhDat).forEach(x=>{
     huMap[x.manhDat] = (huMap[x.manhDat]||0) + x.soTien;
   });
   const huKeys = Object.keys(huMap);
@@ -2756,7 +2764,8 @@ function renderTc(){
     const cfg = {
       chitieu: { label:'🛒 Chi tiêu', color:'var(--bloom)', bg:'var(--bloom-light)' },
       gieohat: { label:'🌱 Gieo hạt', color:'var(--leaf)', bg:'var(--leaf-light)' },
-      thunhap: { label:'💵 Thu nhập', color:'#9C7A0F', bg:'var(--gold-light)' }
+      thunhap: { label:'💵 Thu nhập', color:'#9C7A0F', bg:'var(--gold-light)' },
+      phanbo: { label:'🏺 Phân bổ hũ', color:'#9C7A0F', bg:'var(--gold-light)' }
     }[x.type] || { label:x.type, color:'var(--ink-soft)', bg:'var(--border-soft)' };
     return `<div class="log-item">
       <div style="display:flex;justify-content:space-between;align-items:center">
