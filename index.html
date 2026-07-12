@@ -600,8 +600,19 @@ input:checked+.sl:before{transform:translateX(18px)}
 <!-- ══════════════════════════════════ -->
 <div id="sc-plan" class="screen">
   <div class="page-header">
-    <div class="page-title">📝 Lên kế hoạch</div>
-    <div class="page-sub">Lý tưởng thực hiện tối hôm trước</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div>
+        <div class="page-title">📝 Lên kế hoạch</div>
+        <div class="page-sub">Lý tưởng thực hiện tối hôm trước</div>
+      </div>
+      <button onclick="g('date-picker-plan').showPicker?g('date-picker-plan').showPicker():g('date-picker-plan').click()" style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;flex-shrink:0">📅 Ghi bù</button>
+      <input type="date" id="date-picker-plan" style="position:absolute;opacity:0;width:0;height:0" onchange="pickEditDate('plan', this.value)">
+    </div>
+  </div>
+
+  <div id="edit-banner-plan" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--gold-light);border:1.5px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+    <span class="edit-banner-text" style="font-size:13px;font-weight:700;color:#9C7A0F">✏️ Đang sửa ngày ...</span>
+    <button onclick="stopEditingDate();goNav('plan')" style="border:none;background:none;color:#9C7A0F;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;font-family:inherit;flex-shrink:0">Quay lại hôm nay</button>
   </div>
 
   <!-- B1 -->
@@ -735,8 +746,19 @@ input:checked+.sl:before{transform:translateX(18px)}
 <!-- ══════════════════════════════════ -->
 <div id="sc-do" class="screen">
   <div class="page-header">
-    <div class="page-title">☀️ Thực hiện & Thiền</div>
-    <div class="page-sub">Ghi lại vào cuối ngày hôm sau</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div>
+        <div class="page-title">☀️ Thực hiện & Thiền</div>
+        <div class="page-sub">Ghi lại vào cuối ngày hôm sau</div>
+      </div>
+      <button onclick="g('date-picker-do').showPicker?g('date-picker-do').showPicker():g('date-picker-do').click()" style="font-size:12px;padding:7px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink-soft);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;flex-shrink:0">📅 Ghi bù</button>
+      <input type="date" id="date-picker-do" style="position:absolute;opacity:0;width:0;height:0" onchange="pickEditDate('do', this.value)">
+    </div>
+  </div>
+
+  <div id="edit-banner-do" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--gold-light);border:1.5px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+    <span class="edit-banner-text" style="font-size:13px;font-weight:700;color:#9C7A0F">✏️ Đang sửa ngày ...</span>
+    <button onclick="stopEditingDate();goNav('do')" style="border:none;background:none;color:#9C7A0F;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;font-family:inherit;flex-shrink:0">Quay lại hôm nay</button>
   </div>
 
   <div class="card">
@@ -871,6 +893,7 @@ input:checked+.sl:before{transform:translateX(18px)}
       <select id="k-goal"></select>
     </div>
     <button class="btn btn-gold" id="btn-kim" onclick="saveKim()" style="margin-top:4px">💎 Thêm vào Sổ Kim Cương</button>
+    <button id="btn-kim-cancel" onclick="cancelEditKim()" style="display:none;width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:none;color:var(--ink-soft);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Huỷ sửa</button>
   </div>
 
   <div class="sec-label">📜 Hạt giống mình gieo</div>
@@ -1086,6 +1109,12 @@ input:checked+.sl:before{transform:translateX(18px)}
     </div>
   </div>
 
+  <!-- Số dư còn lại -->
+  <div class="stat" id="tc-so-du-card" style="border-left:3px solid var(--leaf-dark);margin-bottom:9px;background:var(--leaf-light)">
+    <div class="stat-num" id="tc-so-du" style="font-size:24px;color:var(--leaf-dark)">0đ</div>
+    <div class="stat-lbl" style="color:var(--leaf-dark);font-weight:700">💰 Số dư còn lại tháng này (Thu nhập − Chi tiêu)</div>
+  </div>
+
   <!-- Tổng quan tháng -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px">
     <div class="stat" style="border-left:3px solid var(--bloom)">
@@ -1095,6 +1124,14 @@ input:checked+.sl:before{transform:translateX(18px)}
     <div class="stat" style="border-left:3px solid var(--leaf)">
       <div class="stat-num" id="tc-gieo-hat" style="font-size:20.5px;color:var(--leaf)">0đ</div>
       <div class="stat-lbl">Gieo hạt tháng này</div>
+    </div>
+  </div>
+
+  <!-- Các hũ thu nhập tháng này -->
+  <div id="tc-hu-breakdown-wrap" style="display:none;margin-bottom:14px">
+    <div class="sec-label">🏺 Các hũ tháng này</div>
+    <div class="card">
+      <div id="tc-hu-breakdown"></div>
     </div>
   </div>
 
@@ -1142,6 +1179,22 @@ input:checked+.sl:before{transform:translateX(18px)}
       </div>
     </div>
 
+    <div id="tc-thunhap-extra" style="display:none">
+      <div class="field">
+        <div class="field-label">Chia vào hũ (không bắt buộc)</div>
+        <select id="tc-hu">
+          <option value="">— Không chia hũ —</option>
+          <option>🙏 Quỹ Báo Hiếu</option>
+          <option>💰 Quỹ Tiết Kiệm</option>
+          <option>👶 Quỹ Cho Con</option>
+          <option value="khac">Hũ khác...</option>
+        </select>
+      </div>
+      <div id="tc-hu-khac-wrap" style="display:none" class="field">
+        <input type="text" id="tc-hu-khac" placeholder="Nhập tên hũ...">
+      </div>
+    </div>
+
     <div class="field">
       <div class="field-label">Số tiền (VND)</div>
       <input type="number" id="tc-so-tien" placeholder="VD: 150000" oninput="checkKhung()">
@@ -1153,6 +1206,7 @@ input:checked+.sl:before{transform:translateX(18px)}
     </div>
 
     <button class="btn btn-primary" id="btn-tc-save" onclick="saveTc()">💾 Ghi lại</button>
+    <button id="btn-tc-cancel" onclick="cancelEditTc()" style="display:none;width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:none;color:var(--ink-soft);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Huỷ sửa</button>
   </div>
 
   <!-- Lịch sử -->
@@ -1192,7 +1246,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
@@ -1421,7 +1475,8 @@ function goNav(t){
     g('nav-'+s)?.classList.toggle('active', s===t);
   });
   g('sc-setup')?.classList.remove('active');
-  if(t==='plan'){ renderGoalChips(); }
+  if(t==='plan'){ prefillDayForms(); renderGoalChips(); updateEditBanner(); }
+  if(t==='do'){ prefillDayForms(); updateEditBanner(); }
   if(t==='todo'){ renderTodo(); renderGratitude(); }
   if(t==='kim') renderKim();
   if(t==='tc') renderTc();
@@ -1500,9 +1555,72 @@ function selectGoal(idx){
 
 
 // ── LOAD TODAY ENTRY ──
+// ── CHẾ ĐỘ SỬA NGÀY CŨ (mặc định null = đang thao tác ngày hôm nay) ──
+let editingDate = null;
+function activeDate(){ return editingDate || today(); }
+function setEditingDate(d){
+  editingDate = (d===today()) ? null : d;
+  updateEditBanner();
+}
+function stopEditingDate(){ editingDate = null; updateEditBanner(); }
+function updateEditBanner(){
+  ['plan','do'].forEach(scr=>{
+    const el = g('edit-banner-'+scr);
+    if(!el) return;
+    if(editingDate){
+      el.style.display = 'flex';
+      el.querySelector('.edit-banner-text').textContent = '✏️ Đang sửa ngày '+fmtD(editingDate);
+    } else {
+      el.style.display = 'none';
+    }
+  });
+}
+function prefillDayForms(){
+  const {e} = getTodayEntry();
+  // B1-B2
+  selectedGoals = e.goals ? [...e.goals] : [];
+  if(g('land-buddy')) g('land-buddy').value = e.landBuddy||'';
+  if(g('land-on')) g('land-on').value = e.landOn||'';
+  if(g('land-nhieu')) g('land-nhieu').value = e.landNhieu||'';
+  if(g('land-khan')) g('land-khan').value = e.landKhan||'';
+  if(g('t-tructiep')) g('t-tructiep').value = e.tructiep||'';
+  if(g('t-giantiep')) g('t-giantiep').value = e.giantiep||'';
+  if(g('t-day4buoc')) g('t-day4buoc').value = e.day4buoc||'';
+  // B3-B4
+  if(g('b3-done')) g('b3-done').value = e.b3||'';
+  if(g('b4a')) g('b4a').value = e.b4a||'';
+  if(g('b4b')) g('b4b').value = e.b4b||'';
+  if(g('b4c')) g('b4c').value = e.b4c||'';
+  if(g('b4d')) g('b4d').value = e.b4d||'';
+  if(g('bs1')) g('bs1').value = e.bs1||'';
+  if(g('bs2')) g('bs2').value = e.bs2||'';
+  if(g('bs3')) g('bs3').value = e.bs3||'';
+  if(g('bs4')) g('bs4').value = e.bs4||'';
+}
+// Mở 1 ngày cũ từ Nhật ký đầy đủ để sửa
+function editJournalDay(date){
+  closeJournal();
+  setEditingDate(date);
+  prefillDayForms();
+  renderGoalChips();
+  goNav('do');
+  toast('Đang sửa ngày '+fmtD(date)+' — sửa xong nhớ bấm Lưu nhé!','#D4A017');
+}
+
+// Chọn ngày để ghi bù / sửa lại từ nút "📅 Ghi bù" trên B1-B2 hoặc B3-B4
+function pickEditDate(screen, date){
+  if(!date) return;
+  const dToday = today();
+  if(date > dToday){ toast('Không thể chọn ngày trong tương lai!','#D4453C'); return; }
+  setEditingDate(date);
+  prefillDayForms();
+  if(screen==='plan') renderGoalChips();
+  toast(date===dToday ? 'Đã quay về hôm nay.' : 'Đang ghi/sửa ngày '+fmtD(date)+' — nhớ bấm Lưu nhé!','#D4A017');
+}
+
 function getTodayEntry(){
   const log = getLog();
-  const td = today();
+  const td = activeDate();
   let e = log.find(x=>x.date===td);
   if(!e){
     e = {date:td, goals:[], landBuddy:'', landOn:'', landNhieu:'', landKhan:'',
@@ -1563,11 +1681,48 @@ async function saveDo(){
      : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 }
 
+
 // ── SỔ KIM CƯƠNG ──
+let editingKimId = null;
+function editKim(id){
+  const k = getKim().find(x=>x.id===id);
+  if(!k) return;
+  editingKimId = id;
+  g('k-type').value = k.type;
+  g('k-date').value = k.date;
+  g('k-land').value = k.land;
+  g('k-amt').value = k.amt;
+  g('k-detail').value = k.detail;
+  g('k-goal').value = (k.goal>=0) ? k.goal : '';
+  g('btn-kim').textContent = '💾 Cập nhật hạt giống';
+  g('btn-kim-cancel').style.display = 'block';
+  goNav('kim');
+  g('k-type').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function cancelEditKim(){
+  editingKimId = null;
+  g('k-land').value=''; g('k-amt').value=''; g('k-detail').value=''; g('k-goal').value='';
+  g('k-date').value = today();
+  g('btn-kim').textContent = '💎 Thêm vào Sổ Kim Cương';
+  g('btn-kim-cancel').style.display = 'none';
+}
+async function deleteKim(id){
+  if(!confirm('Xoá hạt giống này? Không thể hoàn tác.')) return;
+  saveKimData(getKim().filter(x=>x.id!==id));
+  renderKim();
+  const url = getUrl();
+  if(url){
+    try {
+      await fetch(url, { method:'POST', body: JSON.stringify({type:'kim_delete', id}), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    } catch(e){}
+  }
+  toast('Đã xoá hạt giống.','#D4453C');
+}
 async function saveKim(){
   const kims = getKim();
+  const isEdit = !!editingKimId;
   const entry = {
-    id: Date.now(),
+    id: isEdit ? editingKimId : Date.now(),
     type: g('k-type').value,
     date: g('k-date').value,
     land: g('k-land').value.trim(),
@@ -1576,19 +1731,23 @@ async function saveKim(){
     goal: parseInt(g('k-goal').value)
   };
   if(!entry.land){ toast('Vui lòng nhập mảnh đất!','#D4453C'); return; }
-  kims.unshift(entry);
+  if(isEdit){
+    const idx = kims.findIndex(x=>x.id===editingKimId);
+    if(idx>=0) kims[idx]=entry; else kims.unshift(entry);
+  } else {
+    kims.unshift(entry);
+  }
   saveKimData(kims);
-  g('k-land').value=''; g('k-amt').value=''; g('k-detail').value='';
-  g('k-date').value = today();
+  cancelEditKim();
   renderKim();
 
   const btn = g('btn-kim');
   btn.disabled = true;
-  btn.textContent = '⏳ Đang lưu...';
+  btn.textContent = isEdit ? '⏳ Đang cập nhật...' : '⏳ Đang lưu...';
   const ok = await syncKim(entry);
   btn.disabled = false;
   btn.innerHTML = '💎 Thêm vào Sổ Kim Cương';
-  ok ? toast('Đã thêm hạt giống khủng! 💎✨','#D4A017')
+  ok ? toast(isEdit ? 'Đã cập nhật hạt giống! 💎✨' : 'Đã thêm hạt giống khủng! 💎✨','#D4A017')
      : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 }
 
@@ -1637,7 +1796,13 @@ function renderKim(){
           <div class="kim-date">${fmtD(k.date)}${goalTxt?' · '+goalTxt.slice(0,20):''}</div>
           <span class="kim-type-tag" style="background:${c.bg};color:${c.text}">${k.type}</span>
         </div>
-        <div class="kim-amt">${k.amt?fmtMoney(k.amt):''}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+          <div class="kim-amt">${k.amt?fmtMoney(k.amt):''}</div>
+          <div style="display:flex;gap:4px">
+            <button onclick="editKim(${k.id})" style="border:none;background:var(--border-soft);color:var(--ink-soft);font-size:11px;padding:3px 7px;border-radius:6px;cursor:pointer;font-family:inherit">✏️</button>
+            <button onclick="deleteKim(${k.id})" style="border:none;background:var(--border-soft);color:var(--ink-soft);font-size:11px;padding:3px 7px;border-radius:6px;cursor:pointer;font-family:inherit">🗑️</button>
+          </div>
+        </div>
       </div>`;
     }).join('');
   }
@@ -1884,7 +2049,7 @@ async function pushAllToSheets(){
   for(let i=0;i<tcList.length;i++){
     btn.textContent = `⏳ Đang đẩy Tài chính ${i+1}/${tcList.length}...`;
     const t = tcList[i];
-    const ok = await postOne({ type:'tc', user:userName, date:t.date, tcType:t.type, moTa:t.moTa, soTien:t.soTien, manhDat:t.manhDat });
+    const ok = await postOne({ type:'tc', user:userName, date:t.date, tcType:t.type, moTa:t.moTa, soTien:t.soTien, manhDat:t.manhDat, id:t.id });
     if(ok) okTc++;
   }
 
@@ -2239,7 +2404,10 @@ function renderJournalFull(){
     html += `<div class="card" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="font-size:14.5px;font-weight:800;color:var(--ink)">${fmtD(x.date)}</div>
-        ${x.synced?'<span class="tag" style="background:var(--leaf-light);color:var(--leaf-dark)">✓ Sheets</span>':''}
+        <div style="display:flex;align-items:center;gap:6px">
+          ${x.synced?'<span class="tag" style="background:var(--leaf-light);color:var(--leaf-dark)">✓ Sheets</span>':''}
+          <button onclick="editJournalDay('${x.date}')" style="border:1.5px solid var(--gold);background:var(--gold-light);color:#9C7A0F;font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;cursor:pointer;font-family:inherit">✏️ Sửa</button>
+        </div>
       </div>
       ${rows.map(([label,val])=>`<div style="margin-bottom:7px">
         <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:1px">${label}</div>
@@ -2389,6 +2557,7 @@ function setTcType(type){
     btn.style.borderColor = isActive ? map[t].color : 'var(--border)';
   });
   g('tc-gieohat-extra').style.display = type==='gieohat' ? 'block' : 'none';
+  g('tc-thunhap-extra').style.display = type==='thunhap' ? 'block' : 'none';
   checkKhung();
 }
 
@@ -2398,7 +2567,7 @@ function checkKhung(){
   if(g('tc-kim-goi-y')) g('tc-kim-goi-y').style.display = show ? 'block' : 'none';
 }
 
-// init tc-date và sự kiện chọn quỹ
+// init tc-date và sự kiện chọn quỹ / hũ
 window.addEventListener('DOMContentLoaded', ()=>{
   if(g('tc-date')) g('tc-date').value = today();
   const quySelect = g('tc-quy');
@@ -2407,8 +2576,59 @@ window.addEventListener('DOMContentLoaded', ()=>{
       g('tc-manh-dat-khac-wrap').style.display = quySelect.value==='khac' ? 'block' : 'none';
     });
   }
+  const huSelect = g('tc-hu');
+  if(huSelect){
+    huSelect.addEventListener('change', ()=>{
+      g('tc-hu-khac-wrap').style.display = huSelect.value==='khac' ? 'block' : 'none';
+    });
+  }
 });
 
+let editingTcId = null;
+function editTc(id){
+  const t = getTc().find(x=>x.id===id);
+  if(!t) return;
+  editingTcId = id;
+  setTcType(t.type);
+  g('tc-date').value = t.date;
+  g('tc-mo-ta').value = t.moTa;
+  g('tc-so-tien').value = t.soTien;
+  if(t.type==='gieohat'){
+    const opt = Array.from(g('tc-quy').options).find(o=>o.value===t.manhDat);
+    if(opt){ g('tc-quy').value = t.manhDat; g('tc-manh-dat-khac-wrap').style.display='none'; }
+    else { g('tc-quy').value = 'khac'; g('tc-manh-dat-khac').value = t.manhDat; g('tc-manh-dat-khac-wrap').style.display='block'; }
+  } else if(t.type==='thunhap' && t.manhDat){
+    const opt = Array.from(g('tc-hu').options).find(o=>o.value===t.manhDat);
+    if(opt){ g('tc-hu').value = t.manhDat; g('tc-hu-khac-wrap').style.display='none'; }
+    else { g('tc-hu').value = 'khac'; g('tc-hu-khac').value = t.manhDat; g('tc-hu-khac-wrap').style.display='block'; }
+  }
+  g('btn-tc-save').textContent = '💾 Cập nhật';
+  g('btn-tc-cancel').style.display = 'block';
+  g('btn-tc-save').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function cancelEditTc(){
+  editingTcId = null;
+  g('tc-mo-ta').value=''; g('tc-so-tien').value='';
+  g('tc-quy').value=''; g('tc-manh-dat-khac').value='';
+  g('tc-manh-dat-khac-wrap').style.display='none';
+  g('tc-hu').value=''; g('tc-hu-khac').value='';
+  g('tc-hu-khac-wrap').style.display='none';
+  g('tc-date').value = today();
+  g('btn-tc-save').textContent = '💾 Ghi lại';
+  g('btn-tc-cancel').style.display = 'none';
+}
+async function deleteTc(id){
+  if(!confirm('Xoá khoản này? Không thể hoàn tác.')) return;
+  saveTcData(getTc().filter(x=>x.id!==id));
+  renderTc();
+  const url = getUrl();
+  if(url){
+    try {
+      await fetch(url, { method:'POST', body: JSON.stringify({type:'tc_delete', id}), headers:{'Content-Type':'text/plain;charset=utf-8'} });
+    } catch(e){}
+  }
+  toast('Đã xoá khoản tài chính.','#D4453C');
+}
 async function saveTc(){
   const moTa = g('tc-mo-ta').value.trim();
   const soTien = parseInt(g('tc-so-tien').value)||0;
@@ -2418,26 +2638,32 @@ async function saveTc(){
   if(currentTcType==='gieohat'){
     const quyVal = g('tc-quy').value;
     manhDat = quyVal==='khac' ? g('tc-manh-dat-khac').value.trim() : quyVal;
+  } else if(currentTcType==='thunhap'){
+    const huVal = g('tc-hu').value;
+    manhDat = huVal==='khac' ? g('tc-hu-khac').value.trim() : huVal;
   }
-  const entry = { id:Date.now(), date:g('tc-date').value||today(), type:currentTcType, moTa, soTien, manhDat };
+  const isEdit = !!editingTcId;
+  const entry = { id: isEdit?editingTcId:Date.now(), date:g('tc-date').value||today(), type:currentTcType, moTa, soTien, manhDat };
   const list = getTc();
-  list.unshift(entry);
+  if(isEdit){
+    const idx = list.findIndex(x=>x.id===editingTcId);
+    if(idx>=0) list[idx]=entry; else list.unshift(entry);
+  } else {
+    list.unshift(entry);
+  }
   saveTcData(list);
-  g('tc-mo-ta').value=''; g('tc-so-tien').value='';
-  g('tc-quy').value=''; g('tc-manh-dat-khac').value='';
-  g('tc-manh-dat-khac-wrap').style.display='none';
-  g('tc-kim-goi-y').style.display='none';
+  cancelEditTc();
   renderTc();
 
   const btn = g('btn-tc-save');
   btn.disabled = true;
-  btn.textContent = '⏳ Đang lưu...';
+  btn.textContent = isEdit ? '⏳ Đang cập nhật...' : '⏳ Đang lưu...';
   const url = getUrl();
   let ok = false;
   if(url){
     try {
       const profile = getProfile();
-      const payload = { type:'tc', user: profile?.name||'?', date:entry.date, tcType:entry.type, moTa:entry.moTa, soTien:entry.soTien, manhDat:entry.manhDat };
+      const payload = { type:'tc', user: profile?.name||'?', date:entry.date, tcType:entry.type, moTa:entry.moTa, soTien:entry.soTien, manhDat:entry.manhDat, id:entry.id };
       const res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
       const json = await res.json();
       ok = json.success;
@@ -2445,10 +2671,10 @@ async function saveTc(){
   }
   btn.disabled = false;
   btn.innerHTML = '💾 Ghi lại';
-  ok ? toast('Đã lưu & đồng bộ Sheets! 💰','#3D7A3D')
+  ok ? toast(isEdit ? 'Đã cập nhật! 💰' : 'Đã lưu & đồng bộ Sheets! 💰','#3D7A3D')
      : toast('Đã lưu local! Chưa đồng bộ Sheets.','#D4A017');
 
-  if(currentTcType==='gieohat' && soTien>=500000){
+  if(!isEdit && currentTcType==='gieohat' && soTien>=500000){
     pendingKimEntry = { id:Date.now()+1, type:'Hào phóng', date:entry.date, land:manhDat||moTa, amt:soTien, detail:moTa, goal:-1 };
     g('kim-suggest-msg').textContent = fmtMoney(soTien)+' gieo vào "'+(manhDat||moTa)+'" — hạt giống xứng đáng được lưu vào Sổ Kim Cương! 🌱';
     g('kim-suggest-popup').style.display='block';
@@ -2464,6 +2690,37 @@ function renderTc(){
   const totalTN = monthList.filter(x=>x.type==='thunhap').reduce((s,x)=>s+x.soTien,0);
   g('tc-chi-tieu').textContent = fmtMoney(totalCT)||'0đ';
   g('tc-gieo-hat').textContent = fmtMoney(totalGH)||'0đ';
+
+  // Số dư còn lại = Thu nhập - Chi tiêu (trong tháng)
+  const soDu = totalTN - totalCT;
+  const soDuEl = g('tc-so-du');
+  soDuEl.textContent = (soDu<0?'-':'') + fmtMoney(Math.abs(soDu));
+  const soDuCard = g('tc-so-du-card');
+  if(soDu < 0){
+    soDuCard.style.background = 'var(--bloom-light)';
+    soDuEl.style.color = 'var(--bloom)';
+  } else {
+    soDuCard.style.background = 'var(--leaf-light)';
+    soDuEl.style.color = 'var(--leaf-dark)';
+  }
+
+  // Các hũ tháng này (chỉ tính khoản Thu nhập có chia hũ)
+  const huMap = {};
+  monthList.filter(x=>x.type==='thunhap' && x.manhDat).forEach(x=>{
+    huMap[x.manhDat] = (huMap[x.manhDat]||0) + x.soTien;
+  });
+  const huKeys = Object.keys(huMap);
+  const huWrap = g('tc-hu-breakdown-wrap');
+  if(huKeys.length){
+    huWrap.style.display = 'block';
+    g('tc-hu-breakdown').innerHTML = huKeys.map(k=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-soft)">
+        <div style="font-size:13.5px;color:var(--ink)">${k}</div>
+        <div style="font-size:14px;font-weight:700;color:#9C7A0F">${fmtMoney(huMap[k])}</div>
+      </div>`).join('');
+  } else {
+    huWrap.style.display = 'none';
+  }
 
   // Thu nhập tuần này (thứ 2 → chủ nhật của tuần hiện tại)
   const [mon, sun] = weekRange();
@@ -2511,6 +2768,10 @@ function renderTc(){
       </div>
       <div style="font-size:13.5px;color:var(--ink);margin-top:4px">${x.moTa}</div>
       ${x.manhDat?`<div style="font-size:12.5px;color:var(--ink-muted);margin-top:2px">↳ ${x.manhDat}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button onclick="editTc(${x.id})" style="border:none;background:var(--border-soft);color:var(--ink-soft);font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit">✏️ Sửa</button>
+        <button onclick="deleteTc(${x.id})" style="border:none;background:var(--border-soft);color:var(--ink-soft);font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit">🗑️ Xoá</button>
+      </div>
     </div>`;
   }).join('');
 }
