@@ -1127,9 +1127,21 @@ input:checked+.sl:before{transform:translateX(18px)}
     </div>
   </div>
 
+  <!-- Tổng các hũ từ trước đến giờ -->
+  <div id="tc-hu-total-wrap" style="display:none;margin-bottom:14px">
+    <div class="sec-label">🏦 Tổng các hũ (từ trước đến giờ)</div>
+    <div class="card">
+      <div class="stat" style="border-left:3px solid var(--gold);background:var(--gold-light);margin-bottom:10px">
+        <div class="stat-num" id="tc-hu-grand-total" style="font-size:22px;color:#9C7A0F">0đ</div>
+        <div class="stat-lbl" style="color:#9C7A0F;font-weight:700">Tổng cộng tất cả các hũ</div>
+      </div>
+      <div id="tc-hu-total-breakdown"></div>
+    </div>
+  </div>
+
   <!-- Các hũ thu nhập tháng này -->
   <div id="tc-hu-breakdown-wrap" style="display:none;margin-bottom:14px">
-    <div class="sec-label">🏺 Các hũ tháng này</div>
+    <div class="sec-label">🏺 Đã chia vào hũ trong tháng này</div>
     <div class="card">
       <div id="tc-hu-breakdown"></div>
     </div>
@@ -1248,7 +1260,7 @@ function getUrl(){ return localStorage.getItem(K.url)||''; }
 // Đây là URL Apps Script của Sheet ADMIN riêng (không phải Sheet cá nhân của buddy).
 // Admin (Hưng) dán URL deploy của Sheet quản lý Khoá Học + Banner vào đây,
 // tất cả buddy dùng chung 1 nguồn nội dung này, không liên quan đến Sheet check-in cá nhân của họ.
-const ADMIN_CONTENT_URL = 'https://script.google.com/macros/s/AKfycbwecAUgj_iypOH_rcXSi4pFpNtWZS-PgNH_-vtzio8rhxIOydi9AzvGyxcnLGPmx8qpdw/exec';
+const ADMIN_CONTENT_URL = '';
 function getAdminUrl(){ return ADMIN_CONTENT_URL; }
 
 // ── CHECKLIST / TO-DO (local only, theo ngày) ──
@@ -2710,6 +2722,26 @@ function renderTc(){
   } else {
     soDuCard.style.background = 'var(--leaf-light)';
     soDuEl.style.color = 'var(--leaf-dark)';
+  }
+
+  // Tổng các hũ TỪ TRƯỚC ĐẾN GIỜ (không giới hạn theo tháng — hũ là tích luỹ dài hạn)
+  const huTotalMap = {};
+  list.filter(x=>x.type==='phanbo' && x.manhDat).forEach(x=>{
+    huTotalMap[x.manhDat] = (huTotalMap[x.manhDat]||0) + x.soTien;
+  });
+  const huTotalKeys = Object.keys(huTotalMap);
+  const huTotalWrap = g('tc-hu-total-wrap');
+  if(huTotalKeys.length){
+    huTotalWrap.style.display = 'block';
+    const grandTotal = huTotalKeys.reduce((s,k)=>s+huTotalMap[k],0);
+    g('tc-hu-grand-total').textContent = fmtMoney(grandTotal)||'0đ';
+    g('tc-hu-total-breakdown').innerHTML = huTotalKeys.sort((a,b)=>huTotalMap[b]-huTotalMap[a]).map(k=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-soft)">
+        <div style="font-size:13.5px;color:var(--ink)">${k}</div>
+        <div style="font-size:14px;font-weight:700;color:#9C7A0F">${fmtMoney(huTotalMap[k])}</div>
+      </div>`).join('');
+  } else {
+    huTotalWrap.style.display = 'none';
   }
 
   // Các hũ tháng này (chỉ tính khoản Phân bổ hũ)
